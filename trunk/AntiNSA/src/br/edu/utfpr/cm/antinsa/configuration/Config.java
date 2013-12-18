@@ -4,9 +4,11 @@
  */
 package br.edu.utfpr.cm.antinsa.configuration;
 
+import br.edu.utfpr.cm.antinsa.database.TransactionManager;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
@@ -29,7 +31,7 @@ public class Config {
     private static Element config;
     private static Document document;
 
-    public static void setup() throws JDOMException, IOException {
+    public static void setup() throws JDOMException, IOException, ClassNotFoundException, SQLException {
         if (!STORE_DEFAULT.exists()) {
             STORE_DEFAULT.mkdirs();
         }
@@ -40,7 +42,8 @@ public class Config {
             createXMLConfig();
         }
         startXMLConfig();
-
+        TransactionManager tm = new TransactionManager();
+        tm.createTable();
     }
 
     private static void startXMLConfig() {
@@ -112,13 +115,5 @@ public class Config {
         }
         // Agora o diretório está vazio, restando apenas deletá-lo.  
         return dir.delete();
-    }
-
-    public static String setLibraryPath() {
-        String arch = System.getProperty("os.version");
-//        System.setProperty("java.library.path", System.getProperty("java.library.path") + ":/home/junior/.antiNSA/64");
-//        System.out.println(System.getProperty("java.library.path"));
-//        System.out.println(arch);
-        return arch;
     }
 }

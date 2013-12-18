@@ -12,11 +12,17 @@ public class DataFile {
 
     private int id;
     private String name;
-    private long size;
+    private int size;
+    private long date;
     private String hash;
-    private String idCloud;
-    private String encryptedHash;
-    
+
+    public DataFile(int id, String name, int size, long date, String hash) {
+        this.id = id;
+        this.name = name;
+        this.size = size;
+        this.date = date;
+        this.hash = hash;
+    }
 
     public int getId() {
         return id;
@@ -30,11 +36,11 @@ public class DataFile {
         this.name = name;
     }
 
-    public long getSize() {
+    public int getSize() {
         return size;
     }
 
-    public void setSize(long size) {
+    public void setSize(int size) {
         this.size = size;
     }
 
@@ -44,5 +50,10 @@ public class DataFile {
 
     public void setHash(String hash) {
         this.hash = hash;
+    }
+
+    @Override
+    public String toString() {
+        return "DataFile{" + "id=" + id + ", name=" + name + ", size=" + size + ", date=" + date +  ", hash=" + hash + '}';
     }
 }

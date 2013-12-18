@@ -7,11 +7,9 @@ package br.edu.utfpr.cm.antinsa.gui;
 import br.edu.utfpr.cm.antinsa.util.GDUtils;
 import br.edu.utfpr.cm.antinsa.oauth.googledrive.GoogleDriveOAuth;
 import br.edu.utfpr.cm.antinsa.configuration.Config;
-import br.edu.utfpr.cm.antinsa.controller.GoogleDriveController;
+import br.edu.utfpr.cm.antinsa.controller.GoogleDriveLocalController;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -23,8 +21,9 @@ public class JFramePreferences extends javax.swing.JFrame {
     /**
      * Creates new form JFramePreferences
      */
-   private TaskBar task;
-   private GoogleDriveController googleDriveController;
+    private TaskBar task;
+    private GoogleDriveLocalController driveController;
+    private Thread thread;
 
     public JFramePreferences() {
         try {
@@ -35,7 +34,6 @@ public class JFramePreferences extends javax.swing.JFrame {
         initComponents();
         task.instanceTask();
         getConfigGoogleDriveAccount();
-       googleDriveController  = new GoogleDriveController();
         jTextFieldDefaultLocation.setText(Config.STORE_DEFAULT.getAbsolutePath());
     }
 
@@ -314,7 +312,10 @@ public class JFramePreferences extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, "Your browser will be to open to perform authorization!", "Information", JOptionPane.INFORMATION_MESSAGE);
                 GoogleDriveOAuth.authorize();
                 jButtonDeleteAccount.setEnabled(true);
-                googleDriveController.start();
+                if (driveController == null) {
+                    driveController = new GoogleDriveLocalController();
+                }
+                driveController.start();
                 JOptionPane.showMessageDialog(this, "Authorization performed successfully!", "Sucessful", JOptionPane.INFORMATION_MESSAGE);
                 setAccountInfo();
             } catch (IOException ex) {

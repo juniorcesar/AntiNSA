@@ -4,14 +4,11 @@
  */
 package br.edu.utfpr.cm.antinsa.main;
 
-import br.edu.utfpr.cm.antinsa.controller.GoogleDriveController;
-import br.edu.utfpr.cm.antinsa.oauth.googledrive.GoogleDriveOAuth;
-import br.edu.utfpr.cm.antinsa.service.googledrive.GoogleDrive;
 import br.edu.utfpr.cm.antinsa.configuration.Config;
 import br.edu.utfpr.cm.antinsa.gui.JFramePreferences;
-import br.edu.utfpr.cm.antinsa.controller.GoogleDriveController;
+import br.edu.utfpr.cm.antinsa.controller.GoogleDriveLocalController;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
+import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -26,27 +23,35 @@ import org.jdom2.JDOMException;
 public class Main {
 
     public static void main(String[] args) {
-        GoogleDriveController googleDriveController = new GoogleDriveController();
+        GoogleDriveLocalController driveController = new GoogleDriveLocalController();
         try {
-            try {
-                javax.swing.UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            } catch (ClassNotFoundException ex) {
-                ex.printStackTrace();
-            } catch (InstantiationException ex) {
-                ex.printStackTrace();
-            } catch (IllegalAccessException ex) {
-                ex.printStackTrace();
-            } catch (UnsupportedLookAndFeelException ex) {
-                ex.printStackTrace();
-            }
+            javax.swing.UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+
             Config.setup();
             JFramePreferences main = new JFramePreferences();
             main.setLocationRelativeTo(null);
             main.setVisible(false);
-            googleDriveController.initServiceGoogleDrive();
+            driveController.initServiceGoogleDrive();
         } catch (JDOMException ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "WARNING", JOptionPane.WARNING_MESSAGE);
             ex.printStackTrace();
         } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "WARNING", JOptionPane.WARNING_MESSAGE);
+            ex.printStackTrace();
+        } catch (ClassNotFoundException ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "WARNING", JOptionPane.WARNING_MESSAGE);
+            ex.printStackTrace();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "SQL Error:" + ex.getMessage(), "WARNING", JOptionPane.WARNING_MESSAGE);
+            ex.printStackTrace();
+        } catch (InstantiationException ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "WARNING", JOptionPane.WARNING_MESSAGE);
+            ex.printStackTrace();
+        } catch (IllegalAccessException ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "WARNING", JOptionPane.WARNING_MESSAGE);
+            ex.printStackTrace();
+        } catch (UnsupportedLookAndFeelException ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "WARNING", JOptionPane.WARNING_MESSAGE);
             ex.printStackTrace();
         }
     }
