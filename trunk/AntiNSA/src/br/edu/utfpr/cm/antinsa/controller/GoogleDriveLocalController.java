@@ -19,8 +19,6 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import net.contentobjects.jnotify.JNotify;
-import net.contentobjects.jnotify.JNotifyException;
 
 /**
  *

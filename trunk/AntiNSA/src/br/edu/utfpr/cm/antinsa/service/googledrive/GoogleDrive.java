@@ -39,13 +39,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.contentobjects.jnotify.JNotifyListener;
 
 /**
  *
  * @author junior
  */
-public class GoogleDrive implements JNotifyListener {
+public class GoogleDrive{
 
     private static Credential credential;
     private static HttpTransport httpTransport;
@@ -220,7 +219,6 @@ public class GoogleDrive implements JNotifyListener {
         return null;
     }
 
-    @Override
     public void fileCreated(int wd, String rootPath, String fileName) {
         if (verifyFile(fileName)) {
             System.out.println("Criado " + wd + " - " + rootPath + " - " + fileName + " - ");
@@ -249,7 +247,6 @@ public class GoogleDrive implements JNotifyListener {
 
     }
 
-    @Override
     public void fileDeleted(int wd, String rootPath, String fileName) {
         if (verifyFile(fileName)) {
             try {
@@ -268,7 +265,6 @@ public class GoogleDrive implements JNotifyListener {
         }
     }
 
-    @Override
     public void fileModified(int wd, String rootPath, String fileName) {
         System.out.println("Modificado " + wd + " - " + rootPath + " - " + fileName + " - ");
         if (verifyFile(fileName)) {
@@ -304,7 +300,6 @@ public class GoogleDrive implements JNotifyListener {
         }
     }
 
-    @Override
     public void fileRenamed(int wd, String rootPath, String oldName, String newName) {
         if (verifyFile(newName)) {
             System.out.println("Renomeado " + wd + " - " + rootPath + " - " + oldName + " - " + newName);
