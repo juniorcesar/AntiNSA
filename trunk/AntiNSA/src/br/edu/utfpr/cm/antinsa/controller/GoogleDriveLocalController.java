@@ -9,6 +9,7 @@ import br.edu.utfpr.cm.antinsa.util.GDUtils;
 import br.edu.utfpr.cm.antinsa.service.googledrive.GoogleDrive;
 import br.edu.utfpr.cm.antinsa.configuration.Config;
 import br.edu.utfpr.cm.antinsa.database.DaoDataFile;
+import br.edu.utfpr.cm.antinsa.service.googledrive.DataFile;
 import br.edu.utfpr.cm.antinsa.util.HashGenerator;
 import br.edu.utfpr.cm.antinsa.util.Util;
 import java.io.File;
@@ -16,6 +17,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -26,18 +28,51 @@ import javax.swing.JOptionPane;
  */
 public class GoogleDriveLocalController extends Thread {
 
+    private DaoDataFile daoDataFile;
+
+    public GoogleDriveLocalController() {
+        try {
+            daoDataFile = new DaoDataFile();
+        } catch (ClassNotFoundException ex) {
+            ex.printStackTrace();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    
+
     @Override
     public void run() {
-        java.io.File dir = new File(Config.STORE_DEFAULT.getAbsolutePath());
-        while (!isInterrupted()) {
-            //Verificar os arquivos do diretório padrão
+        try {
+            java.io.File dir = new File(Config.STORE_DEFAULT.getAbsolutePath());
             java.io.File[] files = dir.listFiles();
+            List<DataFile> localFiles = getListLocalDataFile();
+//          List<DataFile> cloudFiles = getListCloudDataFile();
             updateDatabase(files);
-            for (File file : files) {
-                if (verifyFile(file.getAbsolutePath())) {
-                    System.out.println(file.getName());
+            while (!isInterrupted()) {
+                try {
+                    files = dir.listFiles();
+                    //Verificar os arquivos do diretório padrão
+                    for (File file : files) {
+                        if (verifyFile(file.getAbsolutePath())) {
+                            for (DataFile dataFile : localFiles) {
+                                if(dataFile.getName().equals(file.getName())){
+                                    
+                                }
+                            }
+                        }
+                    }
+
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
                 }
             }
+        } catch (SQLException ex) {
+            Logger.getLogger(GoogleDriveLocalController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(GoogleDriveLocalController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -91,17 +126,29 @@ public class GoogleDriveLocalController extends Thread {
 
     private void updateDatabase(java.io.File[] files) {
         try {
-            DaoDataFile daoDataFile = new DaoDataFile();
+            if (daoDataFile == null) {
+                daoDataFile = new DaoDataFile();
+            }
             for (File file : files) {
                 if (verifyFile(file.getAbsolutePath()) && file.isFile() && !daoDataFile.dataFileExists(file.getName())) {
                     daoDataFile.insert(file.getName(), file.length(), file.lastModified(), HashGenerator.hashFile(file.getAbsolutePath()));
                 }
             }
-            daoDataFile.getTransactionManager().close();
         } catch (ClassNotFoundException ex) {
             ex.printStackTrace();
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
+    }
+
+    private List<DataFile> getListLocalDataFile() throws SQLException, ClassNotFoundException {
+        if (daoDataFile == null) {
+            daoDataFile = new DaoDataFile();
+        }
+        return daoDataFile.listAll();
+    }
+
+    private List<DataFile> getListCloudDataFile() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

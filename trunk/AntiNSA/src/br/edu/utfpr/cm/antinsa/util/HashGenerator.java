@@ -43,8 +43,8 @@ public class HashGenerator {
         MessageDigest md5;
         try {
             md5 = MessageDigest.getInstance("MD5");
-            md5.update(fileContent.getBytes(), 0, fileContent.length());
-            return new BigInteger(1, md5.digest()).toString();
+            md5.update(fileContent.getBytes());
+            return new BigInteger(1, md5.digest()).toString(16);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             return null;

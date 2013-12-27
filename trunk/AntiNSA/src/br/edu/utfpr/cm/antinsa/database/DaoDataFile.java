@@ -5,7 +5,6 @@
 package br.edu.utfpr.cm.antinsa.database;
 
 import br.edu.utfpr.cm.antinsa.service.googledrive.DataFile;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;

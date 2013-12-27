@@ -4,15 +4,18 @@
  */
 package br.edu.utfpr.cm.antinsa.test;
 
+import br.edu.utfpr.cm.antinsa.configuration.Config;
 import br.edu.utfpr.cm.antinsa.database.DaoDataFile;
 import br.edu.utfpr.cm.antinsa.service.googledrive.DataFile;
+import br.edu.utfpr.cm.antinsa.service.googledrive.GoogleDrive;
 import br.edu.utfpr.cm.antinsa.util.HashGenerator;
-import java.io.File;
+import com.google.api.client.util.DateTime;
+import com.google.api.services.drive.model.File;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import org.jdom2.JDOMException;
 
 /**
  *
@@ -20,35 +23,28 @@ import java.util.logging.Logger;
  */
 public class OtherTests {
 
-    public static void main(String[] args) {
-        try {
-            //        String s1 =  "tete.txt~";
-            //        String s2 =  ".tete.txt";
-            //        char c1 = s2.charAt(s2.length() - 1);
-            //        char c2 = s2.charAt(0);
-            //        if (c1 == '~' || c2 == '.') {
-            //            System.out.println(false);
-            //        }
-            //       
-            //File f = new File("/home/junior/novo.txt");
-            //        System.out.println(f.toURI());
-            //        System.out.println(f.hashCode());
-            //        GoogleDrive.list();
-            //        GoogleDriveLocalController c1 = new GoogleDriveLocalController();
-            //  
-            //        t1.start();
-            //        t1.start();
-            
-        DaoDataFile d = new DaoDataFile();
-            List<DataFile> listAll = d.listAll();
-                        for (DataFile dataFile : listAll) {
-                            System.out.println(dataFile.toString());
-                        }
-//          d.dataFileExists("tetsst");
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(OtherTests.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(OtherTests.class.getName()).log(Level.SEVERE, null, ex);
+    public static void main(String[] args) throws JDOMException, IOException, ClassNotFoundException, SQLException, GeneralSecurityException {
+
+        Config.setup();
+        GoogleDrive g = new GoogleDrive();
+        java.io.File f = new java.io.File("/home/junior/teste.txt");
+//        g.fileCreated(f);
+        System.out.println("#############CLOUD###############");
+        List<File> filesDefaultFolder = g.getFilesDefaultFolder();
+        
+//        System.out.println(HashGenerator.hashFile(f.getAbsolutePath()));
+        for (File file : filesDefaultFolder) {
+            System.out.println(file.getFileSize());
+            System.out.println(file.getMd5Checksum());
+            System.out.println(file.getModifiedByMeDate().getValue());
+
         }
+        System.out.println("#############CLOUD###############");
+        System.out.println("#############LOCAL###############");
+        System.out.println(f.length());
+        System.out.println(HashGenerator.hashFile(f.getAbsolutePath()));
+        System.out.println(f.lastModified());
+        System.out.println("#############LOCAL###############");
+
     }
 }

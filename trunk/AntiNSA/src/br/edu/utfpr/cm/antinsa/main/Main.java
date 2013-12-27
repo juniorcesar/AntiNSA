@@ -9,8 +9,6 @@ import br.edu.utfpr.cm.antinsa.gui.JFramePreferences;
 import br.edu.utfpr.cm.antinsa.controller.GoogleDriveLocalController;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;

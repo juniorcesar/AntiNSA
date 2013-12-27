@@ -8,6 +8,7 @@ import br.edu.utfpr.cm.antinsa.util.GDUtils;
 import br.edu.utfpr.cm.antinsa.oauth.googledrive.GoogleDriveOAuth;
 import static br.edu.utfpr.cm.antinsa.oauth.googledrive.GoogleDriveOAuth.userInfo;
 import br.edu.utfpr.cm.antinsa.configuration.Config;
+import br.edu.utfpr.cm.antinsa.util.HashGenerator;
 import br.edu.utfpr.cm.antinsa.util.Util;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.http.FileContent;
@@ -17,6 +18,7 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.DateTime;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.Drive.Children;
 import com.google.api.services.drive.Drive.Files;
@@ -26,16 +28,13 @@ import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import com.google.api.services.drive.model.ParentList;
 import com.google.api.services.drive.model.ParentReference;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,7 +43,7 @@ import java.util.logging.Logger;
  *
  * @author junior
  */
-public class GoogleDrive{
+public class GoogleDrive {
 
     private static Credential credential;
     private static HttpTransport httpTransport;
@@ -52,11 +51,11 @@ public class GoogleDrive{
     private static Drive service;
 
     public GoogleDrive() throws IOException, GeneralSecurityException {
-        buildServiceGoogleDrive();
+//        buildServiceGoogleDrive();
         verifyDefaultFolder();
     }
 
-    public static void buildServiceGoogleDrive() throws IOException, GeneralSecurityException {
+    public void buildServiceGoogleDrive() throws IOException, GeneralSecurityException {
         if (service == null) {
             httpTransport = new NetHttpTransport();
             jsonFactory = new JacksonFactory();
@@ -65,7 +64,7 @@ public class GoogleDrive{
         }
     }
 
-    public static void downloadAllFiles(List<File> files) throws IOException, GeneralSecurityException {
+    public void downloadAllFiles(List<File> files) throws IOException, GeneralSecurityException {
         buildServiceGoogleDrive();
         for (File file : files) {
             if (file.getDownloadUrl() != null) {
@@ -76,7 +75,7 @@ public class GoogleDrive{
 
     }
 
-    private static InputStream downloadFile(Drive service, String downloadUrl) {
+    private InputStream downloadFile(Drive service, String downloadUrl) {
         if (downloadUrl != null && downloadUrl.length() > 0) {
             try {
                 HttpResponse resp =
@@ -94,7 +93,7 @@ public class GoogleDrive{
         }
     }
 
-    private static void saveFile(InputStream input, String name) throws FileNotFoundException, IOException {
+    private void saveFile(InputStream input, String name) throws FileNotFoundException, IOException {
 
         FileOutputStream out = new FileOutputStream(new java.io.File("/home/junior/AntiNSA/" + name));
 
@@ -107,36 +106,28 @@ public class GoogleDrive{
         out.close();
     }
 
-    public static List<File> getFilesDefaultFolder() throws IOException, GeneralSecurityException {
+    public List<File> getFilesDefaultFolder() throws IOException, GeneralSecurityException {
         buildServiceGoogleDrive();
         List<File> result = new ArrayList<File>();
-        Files.List request = service.files().list();
+        Files.List request = service.files().list().setQ(" '0B4zDy88Nx4zRTTVETG5IZXJ0cDQ' in parents  and trashed=false");
 
-//        do {
-        try {
-            FileList files = request.execute();
+        do {
+            try {
+                FileList files = request.execute();
 
-            result.addAll(files.getItems());
-            request.setPageToken(files.getNextPageToken());
-        } catch (IOException e) {
-            System.out.println("An error occurred: " + e);
-            request.setPageToken(null);
-        }
-
-//        } while (request.getPageToken() != null
-//                && request.getPageToken().length() > 0);
-        List<File> listFiles = new ArrayList<>();
-        for (File file : result) {
-            if (file.getParents().contains(GDUtils.DEFAULT_FOLDER_NAME)) {
-                listFiles.add(file);
-                System.out.println("ENTROU NO FOR");
+                result.addAll(files.getItems());
+                request.setPageToken(files.getNextPageToken());
+            } catch (IOException e) {
+                System.out.println("An error occurred: " + e);
+                request.setPageToken(null);
             }
-            List<ParentReference> parents = file.getParents();
-        }
-        return listFiles;
+
+        } while (request.getPageToken() != null
+                && request.getPageToken().length() > 0);
+        return result;
     }
 
-    private static void createDefaultFolder() {
+    private void createDefaultFolder() {
         try {
             buildServiceGoogleDrive();
             File body = new File();
@@ -152,7 +143,7 @@ public class GoogleDrive{
         }
     }
 
-    public static void verifyDefaultFolder() {
+    public void verifyDefaultFolder() {
         try {
             buildServiceGoogleDrive();
             Files.List request = service.files().list().setQ(
@@ -162,7 +153,7 @@ public class GoogleDrive{
                 if (folder.getTitle().equals(GDUtils.DEFAULT_FOLDER_NAME)) {
                     Config.readXMLConfig("folder-id").setText(folder.getId());
                     Config.saveXMLConfig();
-                    downloadAllFiles(getFilesDefaultFolder());
+//                    downloadAllFiles(getFilesDefaultFolder());
                     return;
                 }
             }
@@ -176,7 +167,7 @@ public class GoogleDrive{
         return;
     }
 
-    private static String getFolderId() {
+    private String getFolderId() {
         try {
             buildServiceGoogleDrive();
             Files.List request = service.files().list().setQ(
@@ -195,7 +186,7 @@ public class GoogleDrive{
         return null;
     }
 
-    private static File getFileId(String filename) {
+    public File getFileId(String filename) {
         try {
             buildServiceGoogleDrive();
             FileList files = service.files().list().execute();
@@ -219,15 +210,14 @@ public class GoogleDrive{
         return null;
     }
 
-    public void fileCreated(int wd, String rootPath, String fileName) {
-        if (verifyFile(fileName)) {
-            System.out.println("Criado " + wd + " - " + rootPath + " - " + fileName + " - ");
+    public void fileCreated(java.io.File file) {
+        if (verifyFile(file.getName())) {
             String parentId = Config.readXMLConfig("folder-id").getText();
             try {
-                String path = rootPath + "/" + fileName;
 //            if (!Util.getMimeType(path).equals("inode/directory")) {
                 File body = new File();
-                body.setTitle(fileName);
+                body.setTitle(file.getName());
+                body.setModifiedDate(new DateTime(file.lastModified()));
                 if (parentId == null) {
                     verifyDefaultFolder();
                     parentId = Config.readXMLConfig("folder-id").getText();
@@ -235,26 +225,28 @@ public class GoogleDrive{
                     body.setParents(
                             Arrays.asList(new ParentReference().setId(parentId)));
                 }
-                java.io.File fileContent = new java.io.File(path);
+                
+                java.io.File fileContent = new java.io.File(file.getAbsolutePath());
 
-                FileContent mediaContent = new FileContent(Util.getMimeType(path), fileContent);
-                File file = service.files().insert(body, mediaContent).execute();
-                System.out.println("Id do arquivo: " + file.getId());
+                FileContent mediaContent = new FileContent(Util.getMimeType(file.getAbsolutePath()), fileContent);
+                File fileCloud = service.files().insert(body, mediaContent).execute();
+                System.out.println("Id do arquivo: " + fileCloud.getId());
+
+
             } catch (IOException ex) {
-                Logger.getLogger(GoogleDrive.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(GoogleDrive.class
+                        .getName()).log(Level.SEVERE, null, ex);
             }
         }
 
     }
 
-    public void fileDeleted(int wd, String rootPath, String fileName) {
+    public void fileDeleted(String fileName) {
         if (verifyFile(fileName)) {
             try {
                 File file = getFileId(fileName);
-
                 if (file != null) {
                     buildServiceGoogleDrive();
-                    System.out.println("deletado " + wd + " - " + rootPath + " - " + fileName + " - ");
                     service.files().delete(file.getId()).execute();
                 }
             } catch (IOException ex) {
@@ -291,27 +283,16 @@ public class GoogleDrive{
                     FileContent mediaContent = new FileContent(Util.getMimeType(path), fileContent);
                     service.files().update(file.getId(), body, mediaContent).execute();
 
+
+
                 }
             } catch (IOException ex) {
-                Logger.getLogger(GoogleDrive.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(GoogleDrive.class
+                        .getName()).log(Level.SEVERE, null, ex);
             } catch (GeneralSecurityException ex) {
-                Logger.getLogger(GoogleDrive.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(GoogleDrive.class
+                        .getName()).log(Level.SEVERE, null, ex);
             }
-        }
-    }
-
-    public void fileRenamed(int wd, String rootPath, String oldName, String newName) {
-        if (verifyFile(newName)) {
-            System.out.println("Renomeado " + wd + " - " + rootPath + " - " + oldName + " - " + newName);
-//        System.out.println(fileName);
-//        File newFile = new File();
-//        newFile.set("antiNSA", new java.io.File(rootPath + "/" + fileName));
-//        newFile.setTitle(fileName);
-//        try {
-//            service.files().insert(newFile).execute();
-//        } catch (IOException ex) {
-//            ex.printStackTrace();
-//        }
         }
     }
 
@@ -324,18 +305,44 @@ public class GoogleDrive{
         return true;
     }
 
-    public static void list() {
+    public void list() {
         try {
             buildServiceGoogleDrive();
             ParentList parents = service.parents().list("0B4zDy88Nx4zRTTVETG5IZXJ0cDQ").execute();
 
             for (ParentReference parent : parents.getItems()) {
                 System.out.println("File Id: " + parent.getId());
+                System.out.println("File Id: " + parent.getKind());
+
+
             }
         } catch (IOException ex) {
-            Logger.getLogger(GoogleDrive.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(GoogleDrive.class
+                    .getName()).log(Level.SEVERE, null, ex);
         } catch (GeneralSecurityException ex) {
-            Logger.getLogger(GoogleDrive.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(GoogleDrive.class
+                    .getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void files() {
+        try {
+            buildServiceGoogleDrive();
+            FileList list = service.files().list().setQ(" '0B4zDy88Nx4zRTTVETG5IZXJ0cDQ' in parents  and trashed=false").execute();
+
+            for (File file : list.getItems()) {
+                System.out.println(file.getTitle());
+
+
+            }
+
+
+        } catch (IOException ex) {
+            Logger.getLogger(GoogleDrive.class
+                    .getName()).log(Level.SEVERE, null, ex);
+        } catch (GeneralSecurityException ex) {
+            Logger.getLogger(GoogleDrive.class
+                    .getName()).log(Level.SEVERE, null, ex);
         }
     }
 }
