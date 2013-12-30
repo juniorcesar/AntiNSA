@@ -211,98 +211,74 @@ public class GoogleDrive {
     }
 
     public void fileCreated(java.io.File file, long lastModified) {
-        if (verifyFile(file.getName())) {
-            String parentId = Config.readXMLConfig("folder-id").getText();
-            try {
+        String parentId = Config.readXMLConfig("folder-id").getText();
+        try {
 //            if (!Util.getMimeType(path).equals("inode/directory")) {
-                File body = new File();
-                body.setTitle(file.getName());
-                body.setModifiedDate(new DateTime(lastModified));
-                if (parentId == null) {
-                    verifyDefaultFolder();
-                    parentId = Config.readXMLConfig("folder-id").getText();
-                } else {
-                    body.setParents(
-                            Arrays.asList(new ParentReference().setId(parentId)));
-                }
-                
-                java.io.File fileContent = new java.io.File(file.getAbsolutePath());
-
-                FileContent mediaContent = new FileContent(Util.getMimeType(file.getAbsolutePath()), fileContent);
-                File fileCloud = service.files().insert(body, mediaContent).execute();
-                System.out.println("Id do arquivo: " + fileCloud.getId());
-
-
-            } catch (IOException ex) {
-                Logger.getLogger(GoogleDrive.class
-                        .getName()).log(Level.SEVERE, null, ex);
+            File body = new File();
+            body.setTitle(file.getName());
+            body.setModifiedDate(new DateTime(lastModified));
+            if (parentId == null) {
+                verifyDefaultFolder();
+            } else {
+                body.setParents(
+                        Arrays.asList(new ParentReference().setId(parentId)));
             }
+
+            java.io.File fileContent = new java.io.File(file.getAbsolutePath());
+
+            FileContent mediaContent = new FileContent(Util.getMimeType(file.getAbsolutePath()), fileContent);
+            File fileCloud = service.files().insert(body, mediaContent).execute();
+            System.out.println("Id do arquivo: " + fileCloud.getId());
+
+
+        } catch (IOException ex) {
+            Logger.getLogger(GoogleDrive.class
+                    .getName()).log(Level.SEVERE, null, ex);
         }
 
     }
 
     public void fileDeleted(String fileName) {
-        if (verifyFile(fileName)) {
-            try {
-                File file = getFileId(fileName);
-                if (file != null) {
-                    buildServiceGoogleDrive();
-                    service.files().delete(file.getId()).execute();
-                }
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            } catch (GeneralSecurityException ex) {
-                ex.printStackTrace();
+        try {
+            File file = getFileId(fileName);
+            if (file != null) {
+                buildServiceGoogleDrive();
+                service.files().delete(file.getId()).execute();
             }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } catch (GeneralSecurityException ex) {
+            ex.printStackTrace();
         }
     }
 
-    public void fileModified(int wd, String rootPath, String fileName) {
-        System.out.println("Modificado " + wd + " - " + rootPath + " - " + fileName + " - ");
-        if (verifyFile(fileName)) {
-            try {
-                File file = getFileId(fileName);
-                if (file != null) {
-                    buildServiceGoogleDrive();
-                    System.out.println("Modificado " + wd + " - " + rootPath + " - " + fileName + " - ");
-                    String parentId = Config.readXMLConfig("folder-id").getText();
+    public void fileModified(java.io.File fileModified, long lastModified) {
+        try {
+            buildServiceGoogleDrive();
+            File file = getFileId(fileModified.getName());
+            if (file != null) {
+                String parentId = Config.readXMLConfig("folder-id").getText();
 
-                    String path = rootPath + "/" + fileName;
-//            if (!Util.getMimeType(path).equals("inode/directory")) {
-                    File body = new File();
-                    body.setTitle(fileName);
-                    if (parentId == null) {
-                        verifyDefaultFolder();
-                        parentId = Config.readXMLConfig("folder-id").getText();
-                    } else {
-                        body.setParents(
-                                Arrays.asList(new ParentReference().setId(parentId)));
-                    }
-                    java.io.File fileContent = new java.io.File(path);
-
-                    FileContent mediaContent = new FileContent(Util.getMimeType(path), fileContent);
-                    service.files().update(file.getId(), body, mediaContent).execute();
-
-
-
+                File body = new File();
+                body.setTitle(fileModified.getName());
+                body.setModifiedDate(new DateTime(lastModified));
+                if (parentId == null) {
+                    verifyDefaultFolder();
+                } else {
+                    body.setParents(
+                            Arrays.asList(new ParentReference().setId(parentId)));
                 }
-            } catch (IOException ex) {
-                Logger.getLogger(GoogleDrive.class
-                        .getName()).log(Level.SEVERE, null, ex);
-            } catch (GeneralSecurityException ex) {
-                Logger.getLogger(GoogleDrive.class
-                        .getName()).log(Level.SEVERE, null, ex);
+                FileContent mediaContent = new FileContent(Util.getMimeType(fileModified.getAbsolutePath()), fileModified);
+                service.files().update(file.getId(), body, mediaContent).execute();
             }
+        } catch (IOException ex) {
+            Logger.getLogger(GoogleDrive.class
+                    .getName()).log(Level.SEVERE, null, ex);
+        } catch (GeneralSecurityException ex) {
+            Logger.getLogger(GoogleDrive.class
+                    .getName()).log(Level.SEVERE, null, ex);
         }
-    }
 
-    private boolean verifyFile(String fileName) {
-        char c1 = fileName.charAt(fileName.length() - 1);
-        char c2 = fileName.charAt(0);
-        if (c1 == '~' || c2 == '.') {
-            return false;
-        }
-        return true;
     }
 
     public void list() {

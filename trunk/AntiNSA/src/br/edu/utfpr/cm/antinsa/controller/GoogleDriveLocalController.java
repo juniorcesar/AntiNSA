@@ -63,21 +63,23 @@ public class GoogleDriveLocalController extends Thread {
                     files = dir.listFiles();
                     //Verificar os arquivos do diretório padrão
                     for (File file : files) {
-                        tempFile = isTempFile(file.getAbsolutePath());
-                        if (!tempFile && daoDataFile.dataFileExists(file.getName())) {
-                            for (DataFile dataFile : localFiles) {
-                                if (dataFile.getName().equals(file.getName()) && dataFile.getDate() != file.lastModified()) {
-                                    encrypt = cipher.encrypt(file);
-                                    String hash = HashGenerator.hashFile(encrypt);
-                                    if (!dataFile.getHash().equals(hash)) {
-                                        daoDataFile.update(file.getName(), file.length(), file.lastModified(), hash);
+                        if (!isTempFile(file.getAbsolutePath()) && !Util.getMimeType(file.getAbsolutePath()).equals("inode/directory")) {
+                            if (daoDataFile.dataFileExists(file.getName())) {
+                                for (DataFile dataFile : localFiles) {
+                                    if (dataFile.getName().equals(file.getName()) && dataFile.getDate() != file.lastModified()) {
+                                        encrypt = cipher.encrypt(file);
+                                        String hash = HashGenerator.hashFile(encrypt);
+                                        if (!dataFile.getHash().equals(hash)) {
+                                            daoDataFile.update(file.getName(), file.length(), file.lastModified(), hash);
+                                            googleDrive.fileModified(encrypt, file.lastModified());
+                                        }
                                     }
                                 }
+                            } else {
+                                encrypt = cipher.encrypt(file);
+                                daoDataFile.insert(file.getName(), file.length(), file.lastModified(), HashGenerator.hashFile(encrypt));
+                                googleDrive.fileCreated(encrypt, file.lastModified());
                             }
-                        } else if (!tempFile) {
-                            encrypt = cipher.encrypt(file);
-                            daoDataFile.insert(file.getName(), file.length(), file.lastModified(), HashGenerator.hashFile(encrypt));
-                            googleDrive.fileCreated(encrypt, file.lastModified());
                         }
                     }
 
