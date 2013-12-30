@@ -52,6 +52,15 @@ public class DataFile {
         this.hash = hash;
     }
 
+    public long getDate() {
+        return date;
+    }
+
+    public void setDate(long date) {
+        this.date = date;
+    }
+
+    
     @Override
     public String toString() {
         return "DataFile{" + "id=" + id + ", name=" + name + ", size=" + size + ", date=" + date +  ", hash=" + hash + '}';

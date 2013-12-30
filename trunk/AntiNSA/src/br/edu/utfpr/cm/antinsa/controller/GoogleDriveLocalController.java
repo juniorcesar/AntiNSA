@@ -39,8 +39,6 @@ public class GoogleDriveLocalController extends Thread {
             ex.printStackTrace();
         }
     }
-    
-    
 
     @Override
     public void run() {
@@ -49,18 +47,24 @@ public class GoogleDriveLocalController extends Thread {
             java.io.File[] files = dir.listFiles();
             List<DataFile> localFiles = getListLocalDataFile();
 //          List<DataFile> cloudFiles = getListCloudDataFile();
+            GoogleDrive googleDrive = new GoogleDrive();
+            if (daoDataFile == null) {
+                daoDataFile = new DaoDataFile();
+            }
             updateDatabase(files);
             while (!isInterrupted()) {
                 try {
                     files = dir.listFiles();
                     //Verificar os arquivos do diretório padrão
                     for (File file : files) {
-                        if (verifyFile(file.getAbsolutePath())) {
+                        if (verifyFile(file.getAbsolutePath()) && daoDataFile.dataFileExists(file.getName())) {
                             for (DataFile dataFile : localFiles) {
-                                if(dataFile.getName().equals(file.getName())){
-                                    
+                                if (dataFile.getName().equals(file.getName()) && dataFile.getDate() == file.lastModified() && dataFile.getHash().equals(HashGenerator.hashFile(file.getAbsolutePath()))) {
                                 }
                             }
+                        } else {
+                            daoDataFile.insert(file.getName(), file.length(), file.lastModified(), HashGenerator.hashFile(file.getAbsolutePath()));
+                            googleDrive.fileCreated(file);
                         }
                     }
 
@@ -72,6 +76,10 @@ public class GoogleDriveLocalController extends Thread {
         } catch (SQLException ex) {
             Logger.getLogger(GoogleDriveLocalController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {
+            Logger.getLogger(GoogleDriveLocalController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(GoogleDriveLocalController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (GeneralSecurityException ex) {
             Logger.getLogger(GoogleDriveLocalController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
