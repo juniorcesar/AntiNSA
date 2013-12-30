@@ -4,6 +4,8 @@
  */
 package br.edu.utfpr.cm.antinsa.security;
 
+import br.edu.utfpr.cm.antinsa.configuration.Config;
+import br.edu.utfpr.cm.antinsa.configuration.GDUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -29,17 +31,18 @@ public class KeyManager {
 
     public void generateKey() throws NoSuchAlgorithmException, FileNotFoundException, IOException {
         KeyGenerator keygen = KeyGenerator.getInstance("AES");
-        keygen.init(256);
+        keygen.init(128);
         SecretKey key = keygen.generateKey();
     }
 
-    public static void loadKey() throws Exception {
+    public static SecretKey loadKey() throws Exception {
         KeyGenerator keygen = KeyGenerator.getInstance("AES");
         SecretKey key = (SecretKey) keygen.generateKey();
         KeyStore ks = KeyStore.getInstance("JCEKS");
-        ks.load(new FileInputStream(new File("chave.keystore")), "123456".toCharArray());
+        ks.load(new FileInputStream(new File(GDUtils.SECRET_KEY_NAME)), "123456".toCharArray());
         System.out.println(ks.getType());
         SecretKey s = (SecretKey) ks.getKey("chave", "junior".toCharArray());
+        return s;
     }
 
     public static void saveKey() throws NoSuchAlgorithmException, KeyStoreException, IOException, CertificateException, NoSuchPaddingException, InvalidKeyException {

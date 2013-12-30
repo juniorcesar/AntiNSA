@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.edu.utfpr.cm.antinsa.util;
+package br.edu.utfpr.cm.antinsa.configuration;
 
 import br.edu.utfpr.cm.antinsa.configuration.Config;
 import com.google.api.services.drive.DriveScopes;
@@ -23,6 +23,7 @@ public class GDUtils {
     public static final String DEFAULT_FOLDER_NAME = "AntiNSA";
     public static final String CLIENT_ID = "440187793751.apps.googleusercontent.com";
     public static final String CLIENT_SECRET = "vmDcytBykuO0UZdxtKlv983g";
+    public static final String SECRET_KEY_NAME = Config.STORE_CONFIG + "/chave.keystore";
     public static final List<String> SCOPES = Arrays.asList(
             "https://www.googleapis.com/auth/userinfo.profile",
             "https://www.googleapis.com/auth/userinfo.email",

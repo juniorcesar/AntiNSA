@@ -4,7 +4,7 @@
  */
 package br.edu.utfpr.cm.antinsa.gui;
 
-import br.edu.utfpr.cm.antinsa.util.GDUtils;
+import br.edu.utfpr.cm.antinsa.configuration.GDUtils;
 import br.edu.utfpr.cm.antinsa.oauth.googledrive.GoogleDriveOAuth;
 import br.edu.utfpr.cm.antinsa.configuration.Config;
 import br.edu.utfpr.cm.antinsa.controller.GoogleDriveLocalController;

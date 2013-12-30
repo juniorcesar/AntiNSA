@@ -25,7 +25,7 @@ import javax.crypto.NoSuchPaddingException;
  *
  * @author junior
  */
-public class CryptoAES implements Crypto {
+public class CryptoPrivateKeyAES implements Crypto {
 
     private Cipher cipher;
     private final String ALGORITHM = "AES";
@@ -48,15 +48,15 @@ public class CryptoAES implements Crypto {
             return getFile();
 
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(CryptoAES.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CryptoPrivateKeyAES.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(CryptoAES.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CryptoPrivateKeyAES.class.getName()).log(Level.SEVERE, null, ex);
         } catch (NoSuchAlgorithmException ex) {
-            Logger.getLogger(CryptoAES.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CryptoPrivateKeyAES.class.getName()).log(Level.SEVERE, null, ex);
         } catch (NoSuchPaddingException ex) {
-            Logger.getLogger(CryptoAES.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CryptoPrivateKeyAES.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InvalidKeyException ex) {
-            Logger.getLogger(CryptoAES.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CryptoPrivateKeyAES.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
@@ -71,15 +71,15 @@ public class CryptoAES implements Crypto {
             return getFile();
 
         } catch (NoSuchAlgorithmException ex) {
-            Logger.getLogger(CryptoAES.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CryptoPrivateKeyAES.class.getName()).log(Level.SEVERE, null, ex);
         } catch (NoSuchPaddingException ex) {
-            Logger.getLogger(CryptoAES.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CryptoPrivateKeyAES.class.getName()).log(Level.SEVERE, null, ex);
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(CryptoAES.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CryptoPrivateKeyAES.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(CryptoAES.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CryptoPrivateKeyAES.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InvalidKeyException ex) {
-            Logger.getLogger(CryptoAES.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CryptoPrivateKeyAES.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }

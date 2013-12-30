@@ -4,7 +4,7 @@
  */
 package br.edu.utfpr.cm.antinsa.oauth.googledrive;
 
-import br.edu.utfpr.cm.antinsa.util.GDUtils;
+import br.edu.utfpr.cm.antinsa.configuration.GDUtils;
 import br.edu.utfpr.cm.antinsa.configuration.Config;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.TokenResponse;

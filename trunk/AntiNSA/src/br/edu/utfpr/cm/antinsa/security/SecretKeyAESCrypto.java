@@ -27,7 +27,7 @@ import javax.crypto.SecretKey;
  *
  * @author junior
  */
-public class CryptoSecretKeyAES implements Crypto {
+public class SecretKeyAESCrypto implements Crypto {
 
     private Cipher cipher;
     /*É possível utilizar 3 parâmetros, no qual o primeiro parâmetro é o algortimo de critografia, o segundo é o modo com que será realizado 
@@ -40,29 +40,36 @@ public class CryptoSecretKeyAES implements Crypto {
     private BufferedOutputStream bufferedOutputStream;
     private CipherInputStream cipherInputStream;
     private File tempFile;
-    private int size=256;
+    private int size = 128;
+
+    public SecretKeyAESCrypto() throws Exception {
+        key = KeyManager.loadKey();
+    }
+
 //Tentar utilizar o cipher.dofinal(bytes[]);
     @Override
     public File encrypt(File file) {
-
         try {
             this.file = file;
             initCipher();
+            key = KeyManager.loadKey();
             cipher.init(Cipher.ENCRYPT_MODE, key);
             bufferedInputStream = new BufferedInputStream(new FileInputStream(file));
             cipherInputStream = new CipherInputStream(bufferedInputStream, cipher);
             return getFile();
 
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(CryptoSecretKeyAES.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SecretKeyAESCrypto.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(CryptoSecretKeyAES.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SecretKeyAESCrypto.class.getName()).log(Level.SEVERE, null, ex);
         } catch (NoSuchAlgorithmException ex) {
-            Logger.getLogger(CryptoSecretKeyAES.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SecretKeyAESCrypto.class.getName()).log(Level.SEVERE, null, ex);
         } catch (NoSuchPaddingException ex) {
-            Logger.getLogger(CryptoSecretKeyAES.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SecretKeyAESCrypto.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InvalidKeyException ex) {
-            Logger.getLogger(CryptoSecretKeyAES.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SecretKeyAESCrypto.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            Logger.getLogger(SecretKeyAESCrypto.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
@@ -77,15 +84,15 @@ public class CryptoSecretKeyAES implements Crypto {
             return getFile();
 
         } catch (NoSuchAlgorithmException ex) {
-            Logger.getLogger(CryptoSecretKeyAES.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SecretKeyAESCrypto.class.getName()).log(Level.SEVERE, null, ex);
         } catch (NoSuchPaddingException ex) {
-            Logger.getLogger(CryptoSecretKeyAES.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SecretKeyAESCrypto.class.getName()).log(Level.SEVERE, null, ex);
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(CryptoSecretKeyAES.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SecretKeyAESCrypto.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(CryptoSecretKeyAES.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SecretKeyAESCrypto.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InvalidKeyException ex) {
-            Logger.getLogger(CryptoSecretKeyAES.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SecretKeyAESCrypto.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }

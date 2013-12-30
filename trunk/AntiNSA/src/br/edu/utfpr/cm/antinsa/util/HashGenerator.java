@@ -5,6 +5,7 @@
 package br.edu.utfpr.cm.antinsa.util;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -18,11 +19,11 @@ import java.security.NoSuchAlgorithmException;
  */
 public class HashGenerator {
 
-    private static String readFile(String path) {
+    private static String readFile(File file) {
         String text = "";
         BufferedReader br = null;
         try {
-            br = new BufferedReader(new FileReader(path));
+            br = new BufferedReader(new FileReader(file));
             String line;
             try {
                 while ((line = br.readLine()) != null) {
@@ -38,8 +39,8 @@ public class HashGenerator {
         return text;
     }
 
-    public static String hashFile(String path) {
-        String fileContent = readFile(path);
+    public static String hashFile(File file) {
+        String fileContent = readFile(file);
         MessageDigest md5;
         try {
             md5 = MessageDigest.getInstance("MD5");

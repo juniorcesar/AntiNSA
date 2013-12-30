@@ -4,7 +4,7 @@
  */
 package br.edu.utfpr.cm.antinsa.service.googledrive;
 
-import br.edu.utfpr.cm.antinsa.util.GDUtils;
+import br.edu.utfpr.cm.antinsa.configuration.GDUtils;
 import br.edu.utfpr.cm.antinsa.oauth.googledrive.GoogleDriveOAuth;
 import static br.edu.utfpr.cm.antinsa.oauth.googledrive.GoogleDriveOAuth.userInfo;
 import br.edu.utfpr.cm.antinsa.configuration.Config;
@@ -210,14 +210,14 @@ public class GoogleDrive {
         return null;
     }
 
-    public void fileCreated(java.io.File file) {
+    public void fileCreated(java.io.File file, long lastModified) {
         if (verifyFile(file.getName())) {
             String parentId = Config.readXMLConfig("folder-id").getText();
             try {
 //            if (!Util.getMimeType(path).equals("inode/directory")) {
                 File body = new File();
                 body.setTitle(file.getName());
-                body.setModifiedDate(new DateTime(file.lastModified()));
+                body.setModifiedDate(new DateTime(lastModified));
                 if (parentId == null) {
                     verifyDefaultFolder();
                     parentId = Config.readXMLConfig("folder-id").getText();

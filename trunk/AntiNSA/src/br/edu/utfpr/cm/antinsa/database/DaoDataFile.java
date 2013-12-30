@@ -31,7 +31,7 @@ public class DaoDataFile {
     }
 
     public void update(String name, long size, long date, String hash) throws SQLException {
-        String sql = "UPDATE DATAFILE SET NAME = '" + name + "',                     WHERE NAME LIKE " + name + ";";
+        String sql = "UPDATE DATAFILE SET NAME = '" + name + "', SIZE = " + size + ", DATE = " + date + ", HASH = '" + hash + "' WHERE NAME LIKE '" + name + "';";
         stmt.executeUpdate(sql);
     }
 
@@ -62,7 +62,7 @@ public class DaoDataFile {
             int id = rs.getInt("id");
             String name = rs.getString("name");
             int size = rs.getInt("size");
-            long date = rs.getInt("date");
+            long date = rs.getLong("date");
             String hash = rs.getString("hash");
             list.add(new DataFile(id, name, size, date, hash));
         }
