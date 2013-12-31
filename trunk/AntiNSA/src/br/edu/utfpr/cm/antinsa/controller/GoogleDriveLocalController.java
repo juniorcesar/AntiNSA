@@ -9,6 +9,7 @@ import br.edu.utfpr.cm.antinsa.configuration.GDUtils;
 import br.edu.utfpr.cm.antinsa.service.googledrive.GoogleDrive;
 import br.edu.utfpr.cm.antinsa.configuration.Config;
 import br.edu.utfpr.cm.antinsa.database.DaoDataFile;
+import br.edu.utfpr.cm.antinsa.security.KeyManager;
 import br.edu.utfpr.cm.antinsa.security.SecretKeyAESCrypto;
 import br.edu.utfpr.cm.antinsa.service.googledrive.DataFile;
 import br.edu.utfpr.cm.antinsa.util.HashGenerator;
@@ -45,30 +46,33 @@ public class GoogleDriveLocalController extends Thread {
     @Override
     public void run() {
         try {
+
             java.io.File dir = new File(Config.STORE_DEFAULT.getAbsolutePath());
             java.io.File[] files = dir.listFiles();
-            List<DataFile> localFiles;
+            List<DataFile> dbFiles;
 //          List<DataFile> cloudFiles = getListCloudDataFile();
             GoogleDrive googleDrive = new GoogleDrive();
+            if (!GDUtils.SECRET_KEY.exists()) {
+                KeyManager.generateKey();
+            }
             SecretKeyAESCrypto cipher = new SecretKeyAESCrypto();
             boolean tempFile;
             File encrypt;
             if (daoDataFile == null) {
                 daoDataFile = new DaoDataFile();
             }
-            updateDatabase(files);
+//            updateDatabase(files);
             while (!isInterrupted()) {
-                localFiles = getListLocalDataFile();
                 try {
+                    dbFiles = getListLocalDataFile();
                     files = dir.listFiles();
-                    //Verificar os arquivos do diretório padrão
                     for (File file : files) {
                         if (!isTempFile(file.getAbsolutePath()) && !Util.getMimeType(file.getAbsolutePath()).equals("inode/directory")) {
                             if (daoDataFile.dataFileExists(file.getName())) {
-                                for (DataFile dataFile : localFiles) {
+                                for (DataFile dataFile : dbFiles) {
                                     if (dataFile.getName().equals(file.getName()) && dataFile.getDate() != file.lastModified()) {
                                         encrypt = cipher.encrypt(file);
-                                        String hash = HashGenerator.hashFile(encrypt);
+                                        String hash = HashGenerator.hashFile(encrypt.getAbsolutePath());
                                         if (!dataFile.getHash().equals(hash)) {
                                             daoDataFile.update(file.getName(), file.length(), file.lastModified(), hash);
                                             googleDrive.fileModified(encrypt, file.lastModified());
@@ -77,9 +81,21 @@ public class GoogleDriveLocalController extends Thread {
                                 }
                             } else {
                                 encrypt = cipher.encrypt(file);
-                                daoDataFile.insert(file.getName(), file.length(), file.lastModified(), HashGenerator.hashFile(encrypt));
+                                daoDataFile.insert(file.getName(), file.length(), file.lastModified(), HashGenerator.hashFile(encrypt.getAbsolutePath()));
                                 googleDrive.fileCreated(encrypt, file.lastModified());
                             }
+                        }
+                    }
+                    for (DataFile dataFile : dbFiles) {
+                        int count = 0;
+                        for (File file : files) {
+                            if (dataFile.getName().equals(file.getName())) {
+                                count = 1;
+                            }
+                        }
+                        if (count == 0) {
+                            daoDataFile.delete(dataFile.getName());
+                            googleDrive.fileDeleted(dataFile.getName());
                         }
                     }
 
@@ -89,15 +105,15 @@ public class GoogleDriveLocalController extends Thread {
                 }
             }
         } catch (SQLException ex) {
-            Logger.getLogger(GoogleDriveLocalController.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(GoogleDriveLocalController.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         } catch (IOException ex) {
-            Logger.getLogger(GoogleDriveLocalController.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         } catch (GeneralSecurityException ex) {
-            Logger.getLogger(GoogleDriveLocalController.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         } catch (Exception ex) {
-            Logger.getLogger(GoogleDriveLocalController.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         }
     }
 

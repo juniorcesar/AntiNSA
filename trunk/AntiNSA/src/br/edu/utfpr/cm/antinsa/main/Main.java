@@ -5,8 +5,8 @@
 package br.edu.utfpr.cm.antinsa.main;
 
 import br.edu.utfpr.cm.antinsa.configuration.Config;
-import br.edu.utfpr.cm.antinsa.gui.JFramePreferences;
 import br.edu.utfpr.cm.antinsa.controller.GoogleDriveLocalController;
+import br.edu.utfpr.cm.antinsa.gui.JFramePreferences;
 import java.io.IOException;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
@@ -21,7 +21,6 @@ import org.jdom2.JDOMException;
 public class Main {
 
     public static void main(String[] args) {
-        GoogleDriveLocalController driveController = new GoogleDriveLocalController();
         try {
             javax.swing.UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
@@ -29,7 +28,10 @@ public class Main {
             JFramePreferences main = new JFramePreferences();
             main.setLocationRelativeTo(null);
             main.setVisible(false);
-            driveController.initServiceGoogleDrive();
+            if (Boolean.valueOf(Config.readXMLConfig("enable-google-drive").getValue())) {
+                GoogleDriveLocalController driveController = new GoogleDriveLocalController();
+                driveController.initServiceGoogleDrive();
+            }
         } catch (JDOMException ex) {
             JOptionPane.showMessageDialog(null, ex.getMessage(), "WARNING", JOptionPane.WARNING_MESSAGE);
             ex.printStackTrace();

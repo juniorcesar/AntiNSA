@@ -9,8 +9,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  *
@@ -37,7 +36,8 @@ public class TransactionManager {
                 + " NAME           TEXT UNIQUE   NOT NULL, "
                 + " SIZE            INT     NOT NULL, "
                 + " DATE            INT     NOT NULL, "
-                + " hash        TEXT NOT NULL)";
+                + " HASH_LOCAL        TEXT NOT NULL, "
+                + " HASH_CLOUD        TEXT NOT NULL)";
         stmt.executeUpdate(sql);
         close();
     }

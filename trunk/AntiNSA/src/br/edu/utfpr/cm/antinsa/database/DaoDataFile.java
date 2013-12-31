@@ -40,6 +40,11 @@ public class DaoDataFile {
         stmt.executeUpdate(sql);
     }
 
+    public void delete(String fileName) throws SQLException {
+        String sql = "DELETE FROM DATAFILE WHERE NAME LIKE '"+fileName+"';";
+        stmt.executeUpdate(sql);
+    }
+
     public DataFile getDataFile(String fileName) throws SQLException, ClassNotFoundException {
         DataFile dataFile = null;
         ResultSet rs = stmt.executeQuery("SELECT * FROM DATAFILE WHERE NAME LIKE '" + fileName + "';");

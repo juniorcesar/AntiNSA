@@ -27,31 +27,25 @@ import javax.crypto.SecretKey;
  */
 public class KeyManager {
 
-    private File file = null;
-
-    public void generateKey() throws NoSuchAlgorithmException, FileNotFoundException, IOException {
-        KeyGenerator keygen = KeyGenerator.getInstance("AES");
-        keygen.init(128);
-        SecretKey key = keygen.generateKey();
-    }
-
     public static SecretKey loadKey() throws Exception {
         KeyGenerator keygen = KeyGenerator.getInstance("AES");
         SecretKey key = (SecretKey) keygen.generateKey();
         KeyStore ks = KeyStore.getInstance("JCEKS");
-        ks.load(new FileInputStream(new File(GDUtils.SECRET_KEY_NAME)), "123456".toCharArray());
+        ks.load(new FileInputStream(GDUtils.SECRET_KEY), "123456".toCharArray());
         System.out.println(ks.getType());
         SecretKey s = (SecretKey) ks.getKey("chave", "junior".toCharArray());
         return s;
     }
 
-    public static void saveKey() throws NoSuchAlgorithmException, KeyStoreException, IOException, CertificateException, NoSuchPaddingException, InvalidKeyException {
-        SecretKey key = KeyGenerator.getInstance("AES").generateKey();
+    public static void generateKey() throws NoSuchAlgorithmException, KeyStoreException, IOException, CertificateException, NoSuchPaddingException, InvalidKeyException {
+        KeyGenerator keygen = KeyGenerator.getInstance("AES");
+        keygen.init(128);
+        SecretKey key = keygen.generateKey();
         KeyStore ks = KeyStore.getInstance("JCEKS");
         ks.load(null, null);
         KeyStore.SecretKeyEntry skEntry = new KeyStore.SecretKeyEntry(key);
         ks.setEntry("chave", skEntry, new KeyStore.PasswordProtection("junior".toCharArray()));
-        FileOutputStream fos = new FileOutputStream("chave.keystore");
+        FileOutputStream fos = new FileOutputStream(GDUtils.SECRET_KEY);
         ks.store(fos, "123456".toCharArray());
         fos.close();
         Cipher cipher = Cipher.getInstance("AES");

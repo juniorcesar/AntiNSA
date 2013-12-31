@@ -13,8 +13,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.SecureRandom;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.crypto.Cipher;

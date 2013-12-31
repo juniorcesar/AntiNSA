@@ -6,9 +6,7 @@ package br.edu.utfpr.cm.antinsa.service.googledrive;
 
 import br.edu.utfpr.cm.antinsa.configuration.GDUtils;
 import br.edu.utfpr.cm.antinsa.oauth.googledrive.GoogleDriveOAuth;
-import static br.edu.utfpr.cm.antinsa.oauth.googledrive.GoogleDriveOAuth.userInfo;
 import br.edu.utfpr.cm.antinsa.configuration.Config;
-import br.edu.utfpr.cm.antinsa.util.HashGenerator;
 import br.edu.utfpr.cm.antinsa.util.Util;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.http.FileContent;
@@ -20,10 +18,7 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.Drive.Children;
 import com.google.api.services.drive.Drive.Files;
-import com.google.api.services.drive.model.ChildList;
-import com.google.api.services.drive.model.ChildReference;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import com.google.api.services.drive.model.ParentList;
@@ -45,17 +40,17 @@ import java.util.logging.Logger;
  */
 public class GoogleDrive {
 
-    private static Credential credential;
-    private static HttpTransport httpTransport;
-    private static JsonFactory jsonFactory;
-    private static Drive service;
+    private Credential credential;
+    private HttpTransport httpTransport;
+    private JsonFactory jsonFactory;
+    private Drive service;
 
     public GoogleDrive() throws IOException, GeneralSecurityException {
-//        buildServiceGoogleDrive();
+        buildGoogleDriveService();
         verifyDefaultFolder();
     }
 
-    public void buildServiceGoogleDrive() throws IOException, GeneralSecurityException {
+    private void buildGoogleDriveService() throws IOException, GeneralSecurityException {
         if (service == null) {
             httpTransport = new NetHttpTransport();
             jsonFactory = new JacksonFactory();
@@ -65,7 +60,7 @@ public class GoogleDrive {
     }
 
     public void downloadAllFiles(List<File> files) throws IOException, GeneralSecurityException {
-        buildServiceGoogleDrive();
+        buildGoogleDriveService();
         for (File file : files) {
             if (file.getDownloadUrl() != null) {
                 InputStream downloadFile = downloadFile(service, file.getDownloadUrl());
@@ -107,9 +102,10 @@ public class GoogleDrive {
     }
 
     public List<File> getFilesDefaultFolder() throws IOException, GeneralSecurityException {
-        buildServiceGoogleDrive();
+        buildGoogleDriveService();
         List<File> result = new ArrayList<File>();
-        Files.List request = service.files().list().setQ(" '0B4zDy88Nx4zRTTVETG5IZXJ0cDQ' in parents  and trashed=false");
+        String parentId = Config.readXMLConfig("folder-id").getText();
+        Files.List request = service.files().list().setQ(" '" + parentId + "' in parents  and trashed=false");
 
         do {
             try {
@@ -129,7 +125,7 @@ public class GoogleDrive {
 
     private void createDefaultFolder() {
         try {
-            buildServiceGoogleDrive();
+            buildGoogleDriveService();
             File body = new File();
             body.setTitle(GDUtils.DEFAULT_FOLDER_NAME);
             body.setMimeType("application/vnd.google-apps.folder");
@@ -143,9 +139,9 @@ public class GoogleDrive {
         }
     }
 
-    public void verifyDefaultFolder() {
+    private void verifyDefaultFolder() {
         try {
-            buildServiceGoogleDrive();
+            buildGoogleDriveService();
             Files.List request = service.files().list().setQ(
                     "mimeType='application/vnd.google-apps.folder' and trashed=false");
             FileList folders = request.execute();
@@ -153,23 +149,20 @@ public class GoogleDrive {
                 if (folder.getTitle().equals(GDUtils.DEFAULT_FOLDER_NAME)) {
                     Config.readXMLConfig("folder-id").setText(folder.getId());
                     Config.saveXMLConfig();
-//                    downloadAllFiles(getFilesDefaultFolder());
                     return;
                 }
             }
             createDefaultFolder();
-            return;
         } catch (IOException ex) {
             ex.printStackTrace();
         } catch (GeneralSecurityException ex) {
             ex.printStackTrace();
         }
-        return;
     }
 
     private String getFolderId() {
         try {
-            buildServiceGoogleDrive();
+            buildGoogleDriveService();
             Files.List request = service.files().list().setQ(
                     "mimeType='application/vnd.google-apps.folder' and trashed=false");
             FileList files = request.execute();
@@ -188,15 +181,13 @@ public class GoogleDrive {
 
     public File getFileId(String filename) {
         try {
-            buildServiceGoogleDrive();
+            buildGoogleDriveService();
             FileList files = service.files().list().execute();
             String parentId = Config.readXMLConfig("folder-id").getText();
             for (File file : files.getItems()) {
                 if (file.getTitle().equals(filename)) {
                     for (ParentReference parent : file.getParents()) {
                         if (parent.getId().equals(parentId)) {
-                            System.out.println(file.getTitle());
-                            System.out.println(file.getId());
                             return file;
                         }
                     }
@@ -242,7 +233,7 @@ public class GoogleDrive {
         try {
             File file = getFileId(fileName);
             if (file != null) {
-                buildServiceGoogleDrive();
+                buildGoogleDriveService();
                 service.files().delete(file.getId()).execute();
             }
         } catch (IOException ex) {
@@ -254,11 +245,10 @@ public class GoogleDrive {
 
     public void fileModified(java.io.File fileModified, long lastModified) {
         try {
-            buildServiceGoogleDrive();
+            buildGoogleDriveService();
             File file = getFileId(fileModified.getName());
             if (file != null) {
                 String parentId = Config.readXMLConfig("folder-id").getText();
-
                 File body = new File();
                 body.setTitle(fileModified.getName());
                 body.setModifiedDate(new DateTime(lastModified));
@@ -283,7 +273,7 @@ public class GoogleDrive {
 
     public void list() {
         try {
-            buildServiceGoogleDrive();
+            buildGoogleDriveService();
             ParentList parents = service.parents().list("0B4zDy88Nx4zRTTVETG5IZXJ0cDQ").execute();
 
             for (ParentReference parent : parents.getItems()) {
@@ -303,7 +293,7 @@ public class GoogleDrive {
 
     public void files() {
         try {
-            buildServiceGoogleDrive();
+            buildGoogleDriveService();
             FileList list = service.files().list().setQ(" '0B4zDy88Nx4zRTTVETG5IZXJ0cDQ' in parents  and trashed=false").execute();
 
             for (File file : list.getItems()) {
@@ -311,8 +301,6 @@ public class GoogleDrive {
 
 
             }
-
-
         } catch (IOException ex) {
             Logger.getLogger(GoogleDrive.class
                     .getName()).log(Level.SEVERE, null, ex);
