@@ -24,14 +24,14 @@ public class DaoDataFile {
         initTransactionManager();
     }
 
-    public void insert(String name, long size, long date, String hash) throws SQLException, ClassNotFoundException {
-        String sql = "INSERT INTO DATAFILE (NAME,SIZE,DATE,HASH) "
-                + "VALUES ('" + name + "', " + size + "," + date + ", '" + hash + "');";
+    public void insert(String name, long size, long date, String localHash, String cloudHash) throws SQLException, ClassNotFoundException {
+        String sql = "INSERT INTO DATAFILE (NAME,SIZE,DATE,LOCAL_HASH, CLOUD_HASH) "
+                + "VALUES ('" + name + "', " + size + "," + date + ", '" + localHash + "', '" + cloudHash + "');";
         stmt.executeUpdate(sql);
     }
 
-    public void update(String name, long size, long date, String hash) throws SQLException {
-        String sql = "UPDATE DATAFILE SET NAME = '" + name + "', SIZE = " + size + ", DATE = " + date + ", HASH = '" + hash + "' WHERE NAME LIKE '" + name + "';";
+    public void update(String name, long size, long date, String localHash, String cloudHash) throws SQLException {
+        String sql = "UPDATE DATAFILE SET NAME = '" + name + "', SIZE = " + size + ", DATE = " + date + ", LOCAL_HASH = '" + localHash + "' , CLOUD_HASH = '" + cloudHash + "' WHERE NAME LIKE '" + name + "';";
         stmt.executeUpdate(sql);
     }
 
@@ -41,7 +41,7 @@ public class DaoDataFile {
     }
 
     public void delete(String fileName) throws SQLException {
-        String sql = "DELETE FROM DATAFILE WHERE NAME LIKE '"+fileName+"';";
+        String sql = "DELETE FROM DATAFILE WHERE NAME LIKE '" + fileName + "';";
         stmt.executeUpdate(sql);
     }
 
@@ -53,8 +53,9 @@ public class DaoDataFile {
             String name = rs.getString("name");
             int size = rs.getInt("size");
             long date = rs.getInt("date");
-            String hash = rs.getString("hash");
-            dataFile = new DataFile(id, name, size, date, hash);
+            String localHash = rs.getString("local_hash");
+            String cloudHash = rs.getString("cloud_hash");
+            dataFile = new DataFile(id, name, size, date, localHash, cloudHash);
         }
         rs.close();
         return dataFile;
@@ -68,8 +69,9 @@ public class DaoDataFile {
             String name = rs.getString("name");
             int size = rs.getInt("size");
             long date = rs.getLong("date");
-            String hash = rs.getString("hash");
-            list.add(new DataFile(id, name, size, date, hash));
+            String localHash = rs.getString("local_hash");
+            String cloudHash = rs.getString("cloud_hash");
+            list.add(new DataFile(id, name, size, date, localHash, cloudHash));
         }
         rs.close();
         return list;

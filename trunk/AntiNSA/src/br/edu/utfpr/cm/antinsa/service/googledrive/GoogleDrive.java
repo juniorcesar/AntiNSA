@@ -19,6 +19,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.Drive.Files;
+import com.google.api.services.drive.model.About;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import com.google.api.services.drive.model.ParentList;
@@ -63,42 +64,34 @@ public class GoogleDrive {
         buildGoogleDriveService();
         for (File file : files) {
             if (file.getDownloadUrl() != null) {
-                InputStream downloadFile = downloadFile(service, file.getDownloadUrl());
-                saveFile(downloadFile, file.getTitle());
+                InputStream downloadFile = downloadFile(file.getDownloadUrl());
+//                saveFile(downloadFile, file.getTitle());
             }
         }
 
     }
 
-    private InputStream downloadFile(Drive service, String downloadUrl) {
-        if (downloadUrl != null && downloadUrl.length() > 0) {
-            try {
-                HttpResponse resp =
-                        service.getRequestFactory().buildGetRequest(new GenericUrl(downloadUrl))
-                        .execute();
-                return resp.getContent();
-            } catch (IOException e) {
-                // An error occurred.
-                e.printStackTrace();
-                return null;
+    public InputStream downloadFile(String downloadUrl) {
+        try {
+            buildGoogleDriveService();
+            if (downloadUrl != null && downloadUrl.length() > 0) {
+                try {
+                    HttpResponse resp =
+                            service.getRequestFactory().buildGetRequest(new GenericUrl(downloadUrl))
+                            .execute();
+                    return resp.getContent();
+                } catch (IOException e) {
+                    // An error occurred.
+                    e.printStackTrace();
+                    return null;
+                }
             }
-        } else {
-            // The file doesn't have any content stored on Drive.
-            return null;
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } catch (GeneralSecurityException ex) {
+            ex.printStackTrace();
         }
-    }
-
-    private void saveFile(InputStream input, String name) throws FileNotFoundException, IOException {
-
-        FileOutputStream out = new FileOutputStream(new java.io.File("/home/junior/AntiNSA/" + name));
-
-        int b;
-
-        while ((b = input.read()) > -1) {
-            out.write(b);
-        }
-        input.close();
-        out.close();
+        return null;
     }
 
     public List<File> getFilesDefaultFolder() throws IOException, GeneralSecurityException {
@@ -201,7 +194,7 @@ public class GoogleDrive {
         return null;
     }
 
-    public void fileCreated(java.io.File file, long lastModified) {
+    public File fileCreated(java.io.File file, long lastModified) {
         String parentId = Config.readXMLConfig("folder-id").getText();
         try {
 //            if (!Util.getMimeType(path).equals("inode/directory")) {
@@ -220,12 +213,13 @@ public class GoogleDrive {
             FileContent mediaContent = new FileContent(Util.getMimeType(file.getAbsolutePath()), fileContent);
             File fileCloud = service.files().insert(body, mediaContent).execute();
             System.out.println("Id do arquivo: " + fileCloud.getId());
-
+            return fileCloud;
 
         } catch (IOException ex) {
             Logger.getLogger(GoogleDrive.class
                     .getName()).log(Level.SEVERE, null, ex);
         }
+        return null;
 
     }
 
@@ -243,7 +237,7 @@ public class GoogleDrive {
         }
     }
 
-    public void fileModified(java.io.File fileModified, long lastModified) {
+    public File fileModified(java.io.File fileModified, long lastModified) {
         try {
             buildGoogleDriveService();
             File file = getFileId(fileModified.getName());
@@ -259,7 +253,7 @@ public class GoogleDrive {
                             Arrays.asList(new ParentReference().setId(parentId)));
                 }
                 FileContent mediaContent = new FileContent(Util.getMimeType(fileModified.getAbsolutePath()), fileModified);
-                service.files().update(file.getId(), body, mediaContent).execute();
+                return service.files().update(file.getId(), body, mediaContent).execute();
             }
         } catch (IOException ex) {
             Logger.getLogger(GoogleDrive.class
@@ -268,7 +262,7 @@ public class GoogleDrive {
             Logger.getLogger(GoogleDrive.class
                     .getName()).log(Level.SEVERE, null, ex);
         }
-
+        return null;
     }
 
     public void list() {
@@ -308,5 +302,30 @@ public class GoogleDrive {
             Logger.getLogger(GoogleDrive.class
                     .getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public void saveFile(InputStream input, String name, long time) throws FileNotFoundException, IOException {
+        java.io.File file = new java.io.File("/home/junior/Public/" + name);
+        FileOutputStream out = new FileOutputStream(file);
+        int b;
+
+        while ((b = input.read()) > -1) {
+            out.write(b);
+        }
+        input.close();
+        out.close();
+        file.setLastModified(time);
+    }
+
+    public boolean hasStorage() {
+        try {
+            About about = service.about().get().execute();
+            if(about.getQuotaBytesTotal() != about.getQuotaBytesUsed()){
+                return true;
+            }
+        } catch (IOException e) {
+            System.out.println("An error occurred: " + e);
+        }
+        return false;
     }
 }

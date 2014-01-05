@@ -15,13 +15,15 @@ public class DataFile {
     private int size;
     private long date;
     private String hash;
+    private String cloudHash;
 
-    public DataFile(int id, String name, int size, long date, String hash) {
+    public DataFile(int id, String name, int size, long date, String hash, String cloudHash) {
         this.id = id;
         this.name = name;
         this.size = size;
         this.date = date;
         this.hash = hash;
+        this.cloudHash = cloudHash;
     }
 
     public int getId() {
@@ -60,9 +62,16 @@ public class DataFile {
         this.date = date;
     }
 
-    
+    public String getCloudHash() {
+        return cloudHash;
+    }
+
+    public void setCloudHash(String cloudHash) {
+        this.cloudHash = cloudHash;
+    }
+
     @Override
     public String toString() {
-        return "DataFile{" + "id=" + id + ", name=" + name + ", size=" + size + ", date=" + date +  ", hash=" + hash + '}';
+        return "DataFile{" + "id=" + id + ", name=" + name + ", size=" + size + ", date=" + date + ", hash=" + hash + '}';
     }
 }

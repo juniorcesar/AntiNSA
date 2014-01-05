@@ -4,6 +4,7 @@
  */
 package br.edu.utfpr.cm.antinsa.security;
 
+import br.edu.utfpr.cm.antinsa.configuration.GDUtils;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -42,29 +43,33 @@ public class SecretKeyAESCrypto implements Crypto {
 
     public SecretKeyAESCrypto() throws Exception {
         key = KeyManager.loadKey();
+        cipher = Cipher.getInstance(ALGORITHM);
     }
 
-//Tentar utilizar o cipher.dofinal(bytes[]);
     @Override
     public File encrypt(File file) {
         try {
-            this.file = file;
-            initCipher();
-            key = KeyManager.loadKey();
             cipher.init(Cipher.ENCRYPT_MODE, key);
             bufferedInputStream = new BufferedInputStream(new FileInputStream(file));
             cipherInputStream = new CipherInputStream(bufferedInputStream, cipher);
-            return getFile();
+            if (cipherInputStream != null && file.exists()) {
+                tempFile = new File(file.getName());
+                bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(tempFile));
+                int read = 0;
+                byte[] bytes = new byte[1024];
+
+                while ((read = cipherInputStream.read(bytes)) != -1) {
+                    bufferedOutputStream.write(bytes, 0, read);
+                }
+                bufferedOutputStream.close();
+                bufferedInputStream.close();
+
+                return tempFile;
+            }
 
         } catch (FileNotFoundException ex) {
             Logger.getLogger(SecretKeyAESCrypto.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(SecretKeyAESCrypto.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (NoSuchAlgorithmException ex) {
-            Logger.getLogger(SecretKeyAESCrypto.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (NoSuchPaddingException ex) {
-            Logger.getLogger(SecretKeyAESCrypto.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InvalidKeyException ex) {
             Logger.getLogger(SecretKeyAESCrypto.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
             Logger.getLogger(SecretKeyAESCrypto.class.getName()).log(Level.SEVERE, null, ex);
@@ -75,7 +80,11 @@ public class SecretKeyAESCrypto implements Crypto {
     @Override
     public File decrypt(File file) {
         try {
-            initCipher();
+            this.file = file;
+
+            if (key == null) {
+                key = KeyManager.loadKey();
+            }
             cipher.init(Cipher.DECRYPT_MODE, key);
             bufferedInputStream = new BufferedInputStream(new FileInputStream(file));
             cipherInputStream = new CipherInputStream(bufferedInputStream, cipher);
@@ -90,6 +99,8 @@ public class SecretKeyAESCrypto implements Crypto {
         } catch (IOException ex) {
             Logger.getLogger(SecretKeyAESCrypto.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InvalidKeyException ex) {
+            Logger.getLogger(SecretKeyAESCrypto.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
             Logger.getLogger(SecretKeyAESCrypto.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;

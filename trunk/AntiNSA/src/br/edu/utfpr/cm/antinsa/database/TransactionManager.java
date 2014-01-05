@@ -10,7 +10,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-
 /**
  *
  * @author junior
@@ -36,8 +35,8 @@ public class TransactionManager {
                 + " NAME           TEXT UNIQUE   NOT NULL, "
                 + " SIZE            INT     NOT NULL, "
                 + " DATE            INT     NOT NULL, "
-                + " HASH_LOCAL        TEXT NOT NULL, "
-                + " HASH_CLOUD        TEXT NOT NULL)";
+                + " LOCAL_HASH        TEXT , "
+                + " CLOUD_HASH        TEXT )";
         stmt.executeUpdate(sql);
         close();
     }

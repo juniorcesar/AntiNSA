@@ -32,7 +32,6 @@ public class KeyManager {
         SecretKey key = (SecretKey) keygen.generateKey();
         KeyStore ks = KeyStore.getInstance("JCEKS");
         ks.load(new FileInputStream(GDUtils.SECRET_KEY), "123456".toCharArray());
-        System.out.println(ks.getType());
         SecretKey s = (SecretKey) ks.getKey("chave", "junior".toCharArray());
         return s;
     }
