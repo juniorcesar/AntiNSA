@@ -72,20 +72,16 @@ public class GoogleDriveController extends Thread {
             }
             while (!isInterrupted()) {
                 if (Config.STORE_CONFIG.exists() && Util.verifyServiceConnection(GDUtils.URL_SERVICE)) {
-                    if (googleDrive.hasStorage()) {
-                        try {
-                            Config.STORE_DEFAULT.mkdirs();
-                            GDUtils.CACHE_DIR.mkdirs();
-                            //Sincroniza os arquivos locais com a nuvem
-                            cloudSync();
-                            //Atualiza base de dados com arquivos locais
-                            localSync();
-                            Thread.sleep(1000);
-                        } catch (InterruptedException ex) {
-                            ex.printStackTrace();
-                        }
-                    } else {
-                        //Usuario nao possui mais espaco de armazenamento
+                    try {
+                        Config.STORE_DEFAULT.mkdirs();
+                        GDUtils.CACHE_DIR.mkdirs();
+                        //Sincroniza os arquivos locais com a nuvem
+                        cloudSync();
+                        //Atualiza base de dados com arquivos locais
+                        localSync();
+                        Thread.sleep(1000);
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
                     }
                 } else {
                     //A aplicacao nao esta devidamente configurada, e necessario reinicializar o aplicativo ou não há conexão com o serviço
@@ -224,20 +220,19 @@ public class GoogleDriveController extends Thread {
                         }
                     }
                 }
-
             }
-//            for (DataFile dataFile : dbFiles) {
-//                int count = 0;
-//                for (java.io.File file : files) {
-//                    if (dataFile.getName().equals(file.getName())) {
-//                        count = 1;
-//                    }
-//                }
-//                if (count == 0) {
-//                    daoDataFile.delete(dataFile.getName());
-//                    googleDrive.fileDeleted(dataFile.getName());
-//                }
-//            }
+            for (DataFile dataFile : dbFiles) {
+                int count = 0;
+                for (File file : cloudFiles) {
+                    if (dataFile.getName().equals(file.getTitle())) {
+                        count = 1;
+                    }
+                }
+                if (count == 0) {
+                    daoDataFile.delete(dataFile.getName());
+                    new java.io.File(Config.STORE_DEFAULT.getAbsolutePath() + "/" + dataFile.getName()).delete();
+                }
+            }
 
         } catch (Exception ex) {
             ex.printStackTrace();

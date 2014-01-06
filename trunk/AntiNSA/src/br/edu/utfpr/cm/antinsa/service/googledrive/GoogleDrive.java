@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -169,28 +170,32 @@ public class GoogleDrive {
 
     public File createFile(java.io.File file, long lastModified) {
         if (Util.verifyServiceConnection(GDUtils.URL_SERVICE)) {
-            try {
-                String parentId = Config.readXMLConfig("folder-id").getText();
-                File body = new File();
-                body.setTitle(file.getName());
-                body.setModifiedDate(new DateTime(lastModified));
-                if (parentId == null) {
-                    verifyDefaultFolder();
-                } else {
-                    body.setParents(
-                            Arrays.asList(new ParentReference().setId(parentId)));
+            if (!hasStorage(file.length())) {
+                try {
+                    String parentId = Config.readXMLConfig("folder-id").getText();
+                    File body = new File();
+                    body.setTitle(file.getName());
+                    body.setModifiedDate(new DateTime(lastModified));
+                    if (parentId == null) {
+                        verifyDefaultFolder();
+                    } else {
+                        body.setParents(
+                                Arrays.asList(new ParentReference().setId(parentId)));
+                    }
+
+                    java.io.File fileContent = new java.io.File(file.getAbsolutePath());
+
+                    FileContent mediaContent = new FileContent(Util.getMimeType(file.getAbsolutePath()), fileContent);
+                    File fileCloud = service.files().insert(body, mediaContent).execute();
+                    System.out.println("File created in Google Drive: " + fileCloud.getTitle());
+                    return fileCloud;
+
+                } catch (IOException ex) {
+                    Logger.getLogger(GoogleDrive.class
+                            .getName()).log(Level.SEVERE, null, ex);
                 }
-
-                java.io.File fileContent = new java.io.File(file.getAbsolutePath());
-
-                FileContent mediaContent = new FileContent(Util.getMimeType(file.getAbsolutePath()), fileContent);
-                File fileCloud = service.files().insert(body, mediaContent).execute();
-                System.out.println("File created in Google Drive: " + fileCloud.getTitle());
-                return fileCloud;
-
-            } catch (IOException ex) {
-                Logger.getLogger(GoogleDrive.class
-                        .getName()).log(Level.SEVERE, null, ex);
+            } else {
+                JOptionPane.showMessageDialog(null, "The user quota has been exceeded!", "WARNING", JOptionPane.WARNING_MESSAGE);
             }
         }
         return null;
@@ -216,68 +221,33 @@ public class GoogleDrive {
         return false;
     }
 
-    public File updateFile(java.io.File fileModified, long lastModified) {
+    public File updateFile(java.io.File file, long lastModified) {
         if (Util.verifyServiceConnection(GDUtils.URL_SERVICE)) {
-            try {
-                File file = getFileId(fileModified.getName());
-                if (file != null) {
-                    String parentId = Config.readXMLConfig("folder-id").getText();
-                    File body = new File();
-                    body.setTitle(fileModified.getName());
-                    body.setModifiedDate(new DateTime(lastModified));
-                    if (parentId == null) {
-                        verifyDefaultFolder();
-                    } else {
-                        body.setParents(
-                                Arrays.asList(new ParentReference().setId(parentId)));
+            if (!hasStorage(file.length())) {
+                try {
+                    File fileCloud = getFileId(file.getName());
+                    if (fileCloud != null) {
+                        String parentId = Config.readXMLConfig("folder-id").getText();
+                        File body = new File();
+                        body.setTitle(file.getName());
+                        body.setModifiedDate(new DateTime(lastModified));
+                        if (parentId == null) {
+                            verifyDefaultFolder();
+                        } else {
+                            body.setParents(
+                                    Arrays.asList(new ParentReference().setId(parentId)));
+                        }
+                        FileContent mediaContent = new FileContent(Util.getMimeType(file.getAbsolutePath()), file);
+                        return service.files().update(fileCloud.getId(), body, mediaContent).execute();
                     }
-                    FileContent mediaContent = new FileContent(Util.getMimeType(fileModified.getAbsolutePath()), fileModified);
-                    return service.files().update(file.getId(), body, mediaContent).execute();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
                 }
-            } catch (IOException ex) {
-                ex.printStackTrace();
+            } else {
+                JOptionPane.showMessageDialog(null, "The user quota has been exceeded!", "WARNING", JOptionPane.WARNING_MESSAGE);
             }
         }
         return null;
-    }
-
-    public void list() {
-        try {
-            buildGoogleDriveService();
-            ParentList parents = service.parents().list("0B4zDy88Nx4zRTTVETG5IZXJ0cDQ").execute();
-
-            for (ParentReference parent : parents.getItems()) {
-                System.out.println("File Id: " + parent.getId());
-                System.out.println("File Id: " + parent.getKind());
-
-
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(GoogleDrive.class
-                    .getName()).log(Level.SEVERE, null, ex);
-        } catch (GeneralSecurityException ex) {
-            Logger.getLogger(GoogleDrive.class
-                    .getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    public void files() {
-        try {
-            buildGoogleDriveService();
-            FileList list = service.files().list().setQ(" '0B4zDy88Nx4zRTTVETG5IZXJ0cDQ' in parents  and trashed=false").execute();
-
-            for (File file : list.getItems()) {
-                System.out.println(file.getTitle());
-
-
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(GoogleDrive.class
-                    .getName()).log(Level.SEVERE, null, ex);
-        } catch (GeneralSecurityException ex) {
-            Logger.getLogger(GoogleDrive.class
-                    .getName()).log(Level.SEVERE, null, ex);
-        }
     }
 
     public java.io.File saveFile(InputStream input, String name) throws FileNotFoundException, IOException {
@@ -296,14 +266,14 @@ public class GoogleDrive {
         return null;
     }
 
-    public boolean hasStorage() {
+    private boolean hasStorage(long sizeFile) {
         try {
             About about = service.about().get().execute();
-            if (about.getQuotaBytesTotal() != about.getQuotaBytesUsed()) {
+            if (about.getQuotaBytesTotal() <= (about.getQuotaBytesUsed() + sizeFile)) {
                 return true;
             }
-        } catch (IOException e) {
-            System.out.println("An error occurred: " + e);
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
         return false;
     }
