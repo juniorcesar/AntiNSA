@@ -4,6 +4,7 @@
  */
 package br.edu.utfpr.cm.antinsa.security;
 
+import br.edu.utfpr.cm.antinsa.configuration.Config;
 import br.edu.utfpr.cm.antinsa.configuration.GDUtils;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -38,7 +39,6 @@ public class SecretKeyAESCrypto implements Crypto {
     private BufferedInputStream bufferedInputStream;
     private BufferedOutputStream bufferedOutputStream;
     private CipherInputStream cipherInputStream;
-    private File tempFile;
     private int size = 128;
 
     public SecretKeyAESCrypto() throws Exception {
@@ -52,8 +52,8 @@ public class SecretKeyAESCrypto implements Crypto {
             cipher.init(Cipher.ENCRYPT_MODE, key);
             bufferedInputStream = new BufferedInputStream(new FileInputStream(file));
             cipherInputStream = new CipherInputStream(bufferedInputStream, cipher);
-            if (cipherInputStream != null && file.exists()) {
-                tempFile = new File(file.getName());
+            if (cipherInputStream != null) {
+                File tempFile = new File(GDUtils.CACHE_DIR + "/" + file.getName());
                 bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(tempFile));
                 int read = 0;
                 byte[] bytes = new byte[1024];
@@ -80,15 +80,26 @@ public class SecretKeyAESCrypto implements Crypto {
     @Override
     public File decrypt(File file) {
         try {
-            this.file = file;
-
             if (key == null) {
                 key = KeyManager.loadKey();
             }
             cipher.init(Cipher.DECRYPT_MODE, key);
             bufferedInputStream = new BufferedInputStream(new FileInputStream(file));
             cipherInputStream = new CipherInputStream(bufferedInputStream, cipher);
-            return getFile();
+            if (cipherInputStream != null) {
+                File decryptedFile = new File(Config.STORE_DEFAULT.getAbsolutePath() + "/" + file.getName());
+                bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(decryptedFile));
+                int read = 0;
+                byte[] bytes = new byte[1024];
+
+                while ((read = cipherInputStream.read(bytes)) != -1) {
+                    bufferedOutputStream.write(bytes, 0, read);
+                }
+                bufferedOutputStream.close();
+                bufferedInputStream.close();
+                return decryptedFile;
+            }
+
 
         } catch (NoSuchAlgorithmException ex) {
             Logger.getLogger(SecretKeyAESCrypto.class.getName()).log(Level.SEVERE, null, ex);
@@ -120,26 +131,25 @@ public class SecretKeyAESCrypto implements Crypto {
     //Criar método para salvar as configurações em um arquivo .properties e depois realizar leitura por aqui
     private void loadProperties() {
     }
-
-    private File getFile() throws FileNotFoundException, IOException {
-        if (cipherInputStream != null && file.exists()) {
-
-            //Encontrar uma maneira de salvar o arquivo em um File na memória
-            tempFile = new File(file.getName());
-
-            bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(tempFile));
-            int read = 0;
-            byte[] bytes = new byte[1024];
-
-            while ((read = cipherInputStream.read(bytes)) != -1) {
-                bufferedOutputStream.write(bytes, 0, read);
-            }
-            bufferedOutputStream.close();
-            bufferedInputStream.close();
-
-            return tempFile;
-        }
-
-        return null;
-    }
+//    private File getFile() throws FileNotFoundException, IOException {
+//        if (cipherInputStream != null && file.exists()) {
+//
+//            //Encontrar uma maneira de salvar o arquivo em um File na memória
+//            tempFile = new File(file.getName());
+//
+//            bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(tempFile));
+//            int read = 0;
+//            byte[] bytes = new byte[1024];
+//
+//            while ((read = cipherInputStream.read(bytes)) != -1) {
+//                bufferedOutputStream.write(bytes, 0, read);
+//            }
+//            bufferedOutputStream.close();
+//            bufferedInputStream.close();
+//
+//            return tempFile;
+//        }
+//
+//        return null;
+//    }
 }

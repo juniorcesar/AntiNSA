@@ -25,7 +25,7 @@ import javax.crypto.NoSuchPaddingException;
  *
  * @author junior
  */
-public class CryptoPrivateKeyAES implements Crypto {
+public class CryptoPrivateKeyAES {
 
     private Cipher cipher;
     private final String ALGORITHM = "AES";
@@ -36,7 +36,6 @@ public class CryptoPrivateKeyAES implements Crypto {
     private CipherInputStream cipherInputStream;
     private File tempFile;
 
-    @Override
     public File encrypt(File file) {
 
         try {
@@ -61,7 +60,6 @@ public class CryptoPrivateKeyAES implements Crypto {
         return null;
     }
 
-    @Override
     public File decrypt(File file) {
         try {
             initCipher();

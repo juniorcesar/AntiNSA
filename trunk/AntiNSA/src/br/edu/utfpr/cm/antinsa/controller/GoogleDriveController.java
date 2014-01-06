@@ -12,7 +12,7 @@ import br.edu.utfpr.cm.antinsa.database.DaoDataFile;
 import br.edu.utfpr.cm.antinsa.security.KeyManager;
 import br.edu.utfpr.cm.antinsa.security.SecretKeyAESCrypto;
 import br.edu.utfpr.cm.antinsa.service.googledrive.DataFile;
-import br.edu.utfpr.cm.antinsa.util.HashGenerator;
+import br.edu.utfpr.cm.antinsa.security.HashGenerator;
 import br.edu.utfpr.cm.antinsa.util.Util;
 import com.google.api.services.drive.model.File;
 import java.io.FileInputStream;
@@ -23,6 +23,8 @@ import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -31,7 +33,7 @@ import javax.swing.JOptionPane;
  *
  * @author junior
  */
-public class GoogleDriveLocalController extends Thread {
+public class GoogleDriveController extends Thread {
 
     private DaoDataFile daoDataFile;
     private java.io.File[] files;
@@ -39,15 +41,16 @@ public class GoogleDriveLocalController extends Thread {
     private java.io.File dir;
     private GoogleDrive googleDrive;
     private List<File> cloudFiles;
-    private java.io.File encrypt;
-    private java.io.File decrypt;
+    private java.io.File encryptedFile;
+    private java.io.File decryptedFile;
     private SecretKeyAESCrypto cipher;
 
-    public GoogleDriveLocalController() {
+    public GoogleDriveController() {
         try {
             daoDataFile = new DaoDataFile();
             dir = new java.io.File(Config.STORE_DEFAULT.getAbsolutePath());
             googleDrive = new GoogleDrive();
+            cipher = new SecretKeyAESCrypto();
         } catch (ClassNotFoundException ex) {
             ex.printStackTrace();
         } catch (SQLException ex) {
@@ -56,28 +59,25 @@ public class GoogleDriveLocalController extends Thread {
             ex.printStackTrace();
         } catch (GeneralSecurityException ex) {
             ex.printStackTrace();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
     @Override
     public void run() {
         try {
-            if (daoDataFile == null) {
-                daoDataFile = new DaoDataFile();
-            }
             if (!GDUtils.SECRET_KEY.exists()) {
                 KeyManager.generateKey();
             }
-            cipher = new SecretKeyAESCrypto();
-
             while (!isInterrupted()) {
-                if (Config.STORE_CONFIG.exists()) {
+                if (Config.STORE_CONFIG.exists() && Util.verifyServiceConnection(GDUtils.URL_SERVICE)) {
                     if (googleDrive.hasStorage()) {
                         try {
                             Config.STORE_DEFAULT.mkdirs();
                             GDUtils.CACHE_DIR.mkdirs();
                             //Sincroniza os arquivos locais com a nuvem
-//                    cloudSync();
+                            cloudSync();
                             //Atualiza base de dados com arquivos locais
                             localSync();
                             Thread.sleep(1000);
@@ -88,11 +88,11 @@ public class GoogleDriveLocalController extends Thread {
                         //Usuario nao possui mais espaco de armazenamento
                     }
                 } else {
-                    //A aplicacao nao esta devidamente configurada, e necessario reinicializar o aplicativo
+                    //A aplicacao nao esta devidamente configurada, e necessario reinicializar o aplicativo ou não há conexão com o serviço
                 }
             }
         } catch (Exception ex) {
-            Logger.getLogger(GoogleDriveLocalController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(GoogleDriveController.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
@@ -145,40 +145,35 @@ public class GoogleDriveLocalController extends Thread {
         return true;
     }
 
-    private List<DataFile> getListLocalFiles() throws SQLException, ClassNotFoundException {
-        if (daoDataFile == null) {
-            daoDataFile = new DaoDataFile();
-        }
-        return daoDataFile.listAll();
-    }
-
-    private List<DataFile> getListCloudDataFile() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
     private void localSync() {
         try {
             files = dir.listFiles();
             dbFiles = daoDataFile.listAll();
             for (java.io.File file : files) {
-                if (!isTempFile(file.getAbsolutePath()) && !Util.getMimeType(file.getAbsolutePath()).equals("inode/directory")) {
+                if (!isTempFile(file.getAbsolutePath()) && !Util.getMimeType(file.getAbsolutePath()).equals("inode/directory") && !isOpen(file.getAbsolutePath().replace(" ", "\\ "))) {
                     if (daoDataFile.dataFileExists(file.getName())) {
                         for (DataFile dataFile : dbFiles) {
-                            if (dataFile.getName().equals(file.getName()) && dataFile.getDate() != file.lastModified()) {
-                                encrypt = cipher.encrypt(file);
-                                String hash = HashGenerator.hashFile(encrypt.getAbsolutePath());
+                            if (dataFile.getName().equals(file.getName()) && file.lastModified() > dataFile.getDate()) {
+                                encryptedFile = cipher.encrypt(file);
+                                String hash = HashGenerator.hashFile(encryptedFile.getAbsolutePath());
                                 if (!dataFile.getHash().equals(hash)) {
-                                    File fileModified = googleDrive.fileModified(encrypt, file.lastModified());
-                                    daoDataFile.update(file.getName(), file.length(), file.lastModified(), HashGenerator.hashFile(file.getAbsolutePath()), fileModified.getMd5Checksum());
+                                    File fileUpdated = googleDrive.updateFile(encryptedFile, file.lastModified());
+                                    if (fileUpdated != null) {
+                                        daoDataFile.update(file.getName(), file.length(), file.lastModified(), HashGenerator.hashFile(file.getAbsolutePath()), fileUpdated.getMd5Checksum());
+                                    }
                                 }
                             }
                         }
                     } else {
-                        encrypt = cipher.encrypt(file);
-                        File fileCreated = googleDrive.fileCreated(encrypt, file.lastModified());
-                        daoDataFile.insert(file.getName(), file.length(), file.lastModified(), HashGenerator.hashFile(file.getAbsolutePath()), fileCreated.getMd5Checksum());
-
+                        encryptedFile = cipher.encrypt(file);
+                        File fileCreated = googleDrive.createFile(encryptedFile, file.lastModified());
+                        if (fileCreated != null) {
+                            daoDataFile.insert(file.getName(), file.length(), file.lastModified(), HashGenerator.hashFile(file.getAbsolutePath()), fileCreated.getMd5Checksum());
+                        }
                     }
+                }
+                if (encryptedFile != null) {
+                    encryptedFile.delete();
                 }
             }
             for (DataFile dataFile : dbFiles) {
@@ -189,38 +184,45 @@ public class GoogleDriveLocalController extends Thread {
                     }
                 }
                 if (count == 0) {
-                    daoDataFile.delete(dataFile.getName());
-                    googleDrive.fileDeleted(dataFile.getName());
+                    if (googleDrive.deleteFile(dataFile.getName())) {
+                        daoDataFile.delete(dataFile.getName());
+                    }
                 }
             }
         } catch (Exception ex) {
-            Logger.getLogger(GoogleDriveLocalController.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         }
     }
 
     private void cloudSync() {
         try {
-            dbFiles = getListLocalFiles();
+            dbFiles = daoDataFile.listAll();
             cloudFiles = googleDrive.getFilesDefaultFolder();
-            if (!GDUtils.SECRET_KEY.exists()) {
-                KeyManager.generateKey();
-            }
-            SecretKeyAESCrypto cipher = new SecretKeyAESCrypto();
             for (File file : cloudFiles) {
                 if (daoDataFile.dataFileExists(file.getTitle())) {
                     for (DataFile dataFile : dbFiles) {
-                        if (dataFile.getName().equals(file.getTitle()) && dataFile.getDate() != file.getModifiedByMeDate().getValue()) {
+                        if (dataFile.getName().equals(file.getTitle()) && dataFile.getDate() > file.getModifiedByMeDate().getValue()) {
                             if (!dataFile.getCloudHash().equals(file.getMd5Checksum())) {
-//                                daoDataFile.update(file.getTitle(), file.size(), file.getModifiedByMeDate().getValue(), file.getMd5Checksum());
+                                encryptedFile = googleDrive.saveFile(googleDrive.downloadFile(file.getDownloadUrl()), file.getTitle());
+                                if (encryptedFile != null) {
+                                    decryptedFile = cipher.decrypt(encryptedFile);
+                                    decryptedFile.setLastModified(file.getLastViewedByMeDate().getValue());
+                                    daoDataFile.update(decryptedFile.getName(), decryptedFile.length(), decryptedFile.lastModified(), HashGenerator.hashFile(decryptedFile.getAbsolutePath()), file.getMd5Checksum());
+                                    encryptedFile.delete();
+                                }
                             }
                         }
                     }
                 } else {
-//                    InputStream downloadFile = googleDrive.downloadFile(file.getDownloadUrl());
-//                    java.io.File decrypt = cipher.decrypt(downloadFile);
-//                    decrypt.setLastModified(file.getLastViewedByMeDate().getValue());
-//                    daoDataFile.insert(decrypt.getName(), decrypt.length(), decrypt.lastModified(), HashGenerator.hashFile(decrypt.getAbsolutePath()), file.getMd5Checksum());
-//                    saveFile(decrypt);
+                    if (file.getDownloadUrl() != null) {
+                        encryptedFile = googleDrive.saveFile(googleDrive.downloadFile(file.getDownloadUrl()), file.getTitle());
+                        if (encryptedFile != null) {
+                            decryptedFile = cipher.decrypt(encryptedFile);
+                            decryptedFile.setLastModified(file.getLastViewedByMeDate().getValue());
+                            daoDataFile.insert(decryptedFile.getName(), decryptedFile.length(), decryptedFile.lastModified(), HashGenerator.hashFile(decryptedFile.getAbsolutePath()), file.getMd5Checksum());
+                            encryptedFile.delete();
+                        }
+                    }
                 }
 
             }
@@ -253,5 +255,20 @@ public class GoogleDriveLocalController extends Thread {
         }
         input.close();
         out.close();
+    }
+
+    public boolean isOpen(String path) {
+        try {
+            Runtime r = Runtime.getRuntime();
+            Process p = r.exec("lsof " + path);
+
+            Scanner scanner = new Scanner(p.getInputStream());
+            scanner.useDelimiter("$$").next();
+            return true;
+        } catch (NoSuchElementException ex) {
+            return false;
+        } catch (IOException ex) {
+            return false;
+        }
     }
 }

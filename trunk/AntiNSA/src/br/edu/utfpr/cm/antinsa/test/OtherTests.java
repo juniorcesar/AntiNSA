@@ -8,7 +8,7 @@ import br.edu.utfpr.cm.antinsa.configuration.Config;
 import br.edu.utfpr.cm.antinsa.configuration.GDUtils;
 import br.edu.utfpr.cm.antinsa.security.SecretKeyAESCrypto;
 import br.edu.utfpr.cm.antinsa.service.googledrive.GoogleDrive;
-import br.edu.utfpr.cm.antinsa.util.HashGenerator;
+import br.edu.utfpr.cm.antinsa.security.HashGenerator;
 import com.google.api.services.drive.model.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -45,7 +45,7 @@ public class OtherTests {
                 System.out.println(file.getModifiedByMeDate().getValue());
                 InputStream downloadFile = g.downloadFile(file.getDownloadUrl());
 //                s.decrypt(test(downloadFile));
-                g.saveFile(downloadFile, file.getTitle(), file.getLastViewedByMeDate().getValue());
+//                g.saveFile(downloadFile, file.getTitle(), file.getLastViewedByMeDate().getValue());
             }
             //        System.out.println("#############CLOUD###############");
             //        System.out.println("#############LOCAL###############");

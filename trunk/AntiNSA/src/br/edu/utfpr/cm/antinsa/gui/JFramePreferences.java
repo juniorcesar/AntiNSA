@@ -7,7 +7,7 @@ package br.edu.utfpr.cm.antinsa.gui;
 import br.edu.utfpr.cm.antinsa.configuration.GDUtils;
 import br.edu.utfpr.cm.antinsa.oauth.googledrive.GoogleDriveOAuth;
 import br.edu.utfpr.cm.antinsa.configuration.Config;
-import br.edu.utfpr.cm.antinsa.controller.GoogleDriveLocalController;
+import br.edu.utfpr.cm.antinsa.controller.GoogleDriveController;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import javax.swing.JOptionPane;
@@ -22,7 +22,7 @@ public class JFramePreferences extends javax.swing.JFrame {
      * Creates new form JFramePreferences
      */
     private TaskBar task;
-    private GoogleDriveLocalController driveController;
+    private GoogleDriveController driveController;
     private Thread thread;
 
     public JFramePreferences() {
@@ -313,7 +313,7 @@ public class JFramePreferences extends javax.swing.JFrame {
                 GoogleDriveOAuth.authorize();
                 jButtonDeleteAccount.setEnabled(true);
                 if (driveController == null) {
-                    driveController = new GoogleDriveLocalController();
+                    driveController = new GoogleDriveController();
                 }
                 driveController.start();
                 JOptionPane.showMessageDialog(this, "Authorization performed successfully!", "Sucessful", JOptionPane.INFORMATION_MESSAGE);

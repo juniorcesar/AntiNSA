@@ -60,20 +60,9 @@ public class GoogleDrive {
         }
     }
 
-    public void downloadAllFiles(List<File> files) throws IOException, GeneralSecurityException {
-        buildGoogleDriveService();
-        for (File file : files) {
-            if (file.getDownloadUrl() != null) {
-                InputStream downloadFile = downloadFile(file.getDownloadUrl());
-//                saveFile(downloadFile, file.getTitle());
-            }
-        }
-
-    }
-
     public InputStream downloadFile(String downloadUrl) {
-        try {
-            buildGoogleDriveService();
+        if (Util.verifyServiceConnection(GDUtils.URL_SERVICE)) {
+
             if (downloadUrl != null && downloadUrl.length() > 0) {
                 try {
                     HttpResponse resp =
@@ -86,16 +75,12 @@ public class GoogleDrive {
                     return null;
                 }
             }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        } catch (GeneralSecurityException ex) {
-            ex.printStackTrace();
         }
+
         return null;
     }
 
     public List<File> getFilesDefaultFolder() throws IOException, GeneralSecurityException {
-        buildGoogleDriveService();
         List<File> result = new ArrayList<File>();
         String parentId = Config.readXMLConfig("folder-id").getText();
         Files.List request = service.files().list().setQ(" '" + parentId + "' in parents  and trashed=false");
@@ -118,15 +103,12 @@ public class GoogleDrive {
 
     private void createDefaultFolder() {
         try {
-            buildGoogleDriveService();
             File body = new File();
             body.setTitle(GDUtils.DEFAULT_FOLDER_NAME);
             body.setMimeType("application/vnd.google-apps.folder");
             File folder = service.files().insert(body).execute();
             Config.readXMLConfig("folder-id").setText(folder.getId());
             Config.saveXMLConfig();
-        } catch (GeneralSecurityException ex) {
-            ex.printStackTrace();
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -134,7 +116,6 @@ public class GoogleDrive {
 
     private void verifyDefaultFolder() {
         try {
-            buildGoogleDriveService();
             Files.List request = service.files().list().setQ(
                     "mimeType='application/vnd.google-apps.folder' and trashed=false");
             FileList folders = request.execute();
@@ -148,14 +129,11 @@ public class GoogleDrive {
             createDefaultFolder();
         } catch (IOException ex) {
             ex.printStackTrace();
-        } catch (GeneralSecurityException ex) {
-            ex.printStackTrace();
         }
     }
 
     private String getFolderId() {
         try {
-            buildGoogleDriveService();
             Files.List request = service.files().list().setQ(
                     "mimeType='application/vnd.google-apps.folder' and trashed=false");
             FileList files = request.execute();
@@ -166,15 +144,12 @@ public class GoogleDrive {
             }
         } catch (IOException ex) {
             ex.printStackTrace();
-        } catch (GeneralSecurityException ex) {
-            ex.printStackTrace();
         }
         return null;
     }
 
     public File getFileId(String filename) {
         try {
-            buildGoogleDriveService();
             FileList files = service.files().list().execute();
             String parentId = Config.readXMLConfig("folder-id").getText();
             for (File file : files.getItems()) {
@@ -188,63 +163,16 @@ public class GoogleDrive {
             }
         } catch (IOException ex) {
             ex.printStackTrace();
-        } catch (GeneralSecurityException ex) {
-            ex.printStackTrace();
         }
         return null;
     }
 
-    public File fileCreated(java.io.File file, long lastModified) {
-        String parentId = Config.readXMLConfig("folder-id").getText();
-        try {
-//            if (!Util.getMimeType(path).equals("inode/directory")) {
-            File body = new File();
-            body.setTitle(file.getName());
-            body.setModifiedDate(new DateTime(lastModified));
-            if (parentId == null) {
-                verifyDefaultFolder();
-            } else {
-                body.setParents(
-                        Arrays.asList(new ParentReference().setId(parentId)));
-            }
-
-            java.io.File fileContent = new java.io.File(file.getAbsolutePath());
-
-            FileContent mediaContent = new FileContent(Util.getMimeType(file.getAbsolutePath()), fileContent);
-            File fileCloud = service.files().insert(body, mediaContent).execute();
-            System.out.println("Id do arquivo: " + fileCloud.getId());
-            return fileCloud;
-
-        } catch (IOException ex) {
-            Logger.getLogger(GoogleDrive.class
-                    .getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-
-    }
-
-    public void fileDeleted(String fileName) {
-        try {
-            File file = getFileId(fileName);
-            if (file != null) {
-                buildGoogleDriveService();
-                service.files().delete(file.getId()).execute();
-            }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        } catch (GeneralSecurityException ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    public File fileModified(java.io.File fileModified, long lastModified) {
-        try {
-            buildGoogleDriveService();
-            File file = getFileId(fileModified.getName());
-            if (file != null) {
+    public File createFile(java.io.File file, long lastModified) {
+        if (Util.verifyServiceConnection(GDUtils.URL_SERVICE)) {
+            try {
                 String parentId = Config.readXMLConfig("folder-id").getText();
                 File body = new File();
-                body.setTitle(fileModified.getName());
+                body.setTitle(file.getName());
                 body.setModifiedDate(new DateTime(lastModified));
                 if (parentId == null) {
                     verifyDefaultFolder();
@@ -252,15 +180,63 @@ public class GoogleDrive {
                     body.setParents(
                             Arrays.asList(new ParentReference().setId(parentId)));
                 }
-                FileContent mediaContent = new FileContent(Util.getMimeType(fileModified.getAbsolutePath()), fileModified);
-                return service.files().update(file.getId(), body, mediaContent).execute();
+
+                java.io.File fileContent = new java.io.File(file.getAbsolutePath());
+
+                FileContent mediaContent = new FileContent(Util.getMimeType(file.getAbsolutePath()), fileContent);
+                File fileCloud = service.files().insert(body, mediaContent).execute();
+                System.out.println("File created in Google Drive: " + fileCloud.getTitle());
+                return fileCloud;
+
+            } catch (IOException ex) {
+                Logger.getLogger(GoogleDrive.class
+                        .getName()).log(Level.SEVERE, null, ex);
             }
-        } catch (IOException ex) {
-            Logger.getLogger(GoogleDrive.class
-                    .getName()).log(Level.SEVERE, null, ex);
-        } catch (GeneralSecurityException ex) {
-            Logger.getLogger(GoogleDrive.class
-                    .getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+
+    }
+
+    public boolean deleteFile(String fileName) {
+        if (Util.verifyServiceConnection(GDUtils.URL_SERVICE)) {
+            try {
+                File file = getFileId(fileName);
+                if (file != null) {
+                    buildGoogleDriveService();
+                    service.files().delete(file.getId()).execute();
+                    System.out.println("File deleted in Google Drive: " + fileName);
+                    return true;
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            } catch (GeneralSecurityException ex) {
+                ex.printStackTrace();
+            }
+        }
+        return false;
+    }
+
+    public File updateFile(java.io.File fileModified, long lastModified) {
+        if (Util.verifyServiceConnection(GDUtils.URL_SERVICE)) {
+            try {
+                File file = getFileId(fileModified.getName());
+                if (file != null) {
+                    String parentId = Config.readXMLConfig("folder-id").getText();
+                    File body = new File();
+                    body.setTitle(fileModified.getName());
+                    body.setModifiedDate(new DateTime(lastModified));
+                    if (parentId == null) {
+                        verifyDefaultFolder();
+                    } else {
+                        body.setParents(
+                                Arrays.asList(new ParentReference().setId(parentId)));
+                    }
+                    FileContent mediaContent = new FileContent(Util.getMimeType(fileModified.getAbsolutePath()), fileModified);
+                    return service.files().update(file.getId(), body, mediaContent).execute();
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
         return null;
     }
@@ -304,23 +280,26 @@ public class GoogleDrive {
         }
     }
 
-    public void saveFile(InputStream input, String name, long time) throws FileNotFoundException, IOException {
-        java.io.File file = new java.io.File("/home/junior/Public/" + name);
-        FileOutputStream out = new FileOutputStream(file);
-        int b;
+    public java.io.File saveFile(InputStream input, String name) throws FileNotFoundException, IOException {
+        if (input != null) {
+            java.io.File file = new java.io.File(GDUtils.CACHE_DIR + "/" + name);
+            FileOutputStream out = new FileOutputStream(file);
+            int b;
 
-        while ((b = input.read()) > -1) {
-            out.write(b);
+            while ((b = input.read()) > -1) {
+                out.write(b);
+            }
+            input.close();
+            out.close();
+            return file;
         }
-        input.close();
-        out.close();
-        file.setLastModified(time);
+        return null;
     }
 
     public boolean hasStorage() {
         try {
             About about = service.about().get().execute();
-            if(about.getQuotaBytesTotal() != about.getQuotaBytesUsed()){
+            if (about.getQuotaBytesTotal() != about.getQuotaBytesUsed()) {
                 return true;
             }
         } catch (IOException e) {

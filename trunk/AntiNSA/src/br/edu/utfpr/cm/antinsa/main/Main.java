@@ -5,7 +5,7 @@
 package br.edu.utfpr.cm.antinsa.main;
 
 import br.edu.utfpr.cm.antinsa.configuration.Config;
-import br.edu.utfpr.cm.antinsa.controller.GoogleDriveLocalController;
+import br.edu.utfpr.cm.antinsa.controller.GoogleDriveController;
 import br.edu.utfpr.cm.antinsa.gui.JFramePreferences;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -29,7 +29,7 @@ public class Main {
             main.setLocationRelativeTo(null);
             main.setVisible(false);
             if (Boolean.valueOf(Config.readXMLConfig("enable-google-drive").getValue())) {
-                GoogleDriveLocalController driveController = new GoogleDriveLocalController();
+                GoogleDriveController driveController = new GoogleDriveController();
                 driveController.initServiceGoogleDrive();
             }
         } catch (JDOMException ex) {

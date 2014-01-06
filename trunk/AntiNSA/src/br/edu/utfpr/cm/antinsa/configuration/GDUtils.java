@@ -18,21 +18,21 @@ import org.json.JSONObject;
  */
 public class GDUtils {
 
+    public static final File SECRET_KEY = new File(Config.STORE_CONFIG + "/chave.keystore");
+    public static final File STORE_CONFIG_GOOGLE_DRIVE = new File(Config.STORE_CONFIG + "/googledrive");
+    public static final File CLIENT_SECRETS = new File(STORE_CONFIG_GOOGLE_DRIVE + "/client_secrets.json");
+    public static final File CACHE_DIR = new File(Config.STORE_DEFAULT + "/.cache");
     public static final String APPLICATION_NAME = "APPJUNIOR";
     public static final String DEFAULT_FOLDER_NAME = "AntiNSA";
     public static final String CLIENT_ID = "440187793751.apps.googleusercontent.com";
     public static final String CLIENT_SECRET = "vmDcytBykuO0UZdxtKlv983g";
-    public static final File SECRET_KEY = new File(Config.STORE_CONFIG + "/chave.keystore");
+    public static final String URL_SERVICE = "https://drive.google.com";
     public static final List<String> SCOPES = Arrays.asList(
             "https://www.googleapis.com/auth/userinfo.profile",
             "https://www.googleapis.com/auth/userinfo.email",
             DriveScopes.DRIVE_FILE,
             DriveScopes.DRIVE,
             DriveScopes.DRIVE_APPDATA);
-    public static final File STORE_CONFIG_GOOGLE_DRIVE = new File(Config.STORE_CONFIG + "/googledrive");
-    public static final File CLIENT_SECRETS = new File(STORE_CONFIG_GOOGLE_DRIVE + "/client_secrets.json");
-    public static final File CACHE_DIR = new File(Config.STORE_DEFAULT + "/.cache");
-    public static final String URL_SERVICE = "https://drive.google.com";
 
     public static void createClientSecrets() throws IOException {
         if (!STORE_CONFIG_GOOGLE_DRIVE.exists()) {
