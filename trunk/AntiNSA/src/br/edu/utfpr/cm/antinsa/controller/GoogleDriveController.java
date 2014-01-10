@@ -197,7 +197,7 @@ public class GoogleDriveController extends Thread {
             for (File file : cloudFiles) {
                 if (daoDataFile.dataFileExists(file.getTitle())) {
                     for (DataFile dataFile : dbFiles) {
-                        if (dataFile.getName().equals(file.getTitle()) && dataFile.getDate() > file.getModifiedByMeDate().getValue()) {
+                        if (dataFile.getName().equals(file.getTitle()) && dataFile.getDate() < file.getModifiedByMeDate().getValue()) {
                             if (!dataFile.getCloudHash().equals(file.getMd5Checksum())) {
                                 encryptedFile = googleDrive.saveFile(googleDrive.downloadFile(file.getDownloadUrl()), file.getTitle());
                                 if (encryptedFile != null) {
