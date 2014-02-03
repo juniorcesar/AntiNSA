@@ -31,8 +31,8 @@ public class KeyManager {
         KeyGenerator keygen = KeyGenerator.getInstance("AES");
         SecretKey key = (SecretKey) keygen.generateKey();
         KeyStore ks = KeyStore.getInstance("JCEKS");
-        ks.load(new FileInputStream(GDUtils.SECRET_KEY), "123456".toCharArray());
-        SecretKey s = (SecretKey) ks.getKey("chave", "junior".toCharArray());
+        ks.load(new FileInputStream(GDUtils.SECRET_KEY), "keymanager".toCharArray());
+        SecretKey s = (SecretKey) ks.getKey("antinsa", "keymanager".toCharArray());
         return s;
     }
 
@@ -43,11 +43,23 @@ public class KeyManager {
         KeyStore ks = KeyStore.getInstance("JCEKS");
         ks.load(null, null);
         KeyStore.SecretKeyEntry skEntry = new KeyStore.SecretKeyEntry(key);
-        ks.setEntry("chave", skEntry, new KeyStore.PasswordProtection("junior".toCharArray()));
-        FileOutputStream fos = new FileOutputStream(GDUtils.SECRET_KEY);
-        ks.store(fos, "123456".toCharArray());
+        ks.setEntry("antinsa", skEntry,
+                new KeyStore.PasswordProtection("keymanager".toCharArray()));
+        FileOutputStream fos = new FileOutputStream(new File(
+                Config.STORE_CONFIG + "/antinsa.keystore"));
+        ks.store(fos, "keymanager".toCharArray());
         fos.close();
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.ENCRYPT_MODE, key);
     }
+    //        KeyGenerator keygen = KeyGenerator.getInstance("AES");
+//        keygen.init(128);
+//        SecretKey key = keygen.generateKey();
+//        KeyStore ks = KeyStore.getInstance("JCEKS");
+//        ks.load(null, null);
+//        KeyStore.SecretKeyEntry skEntry = new KeyStore.SecretKeyEntry(key);
+//        ks.setEntry("chave", skEntry, new KeyStore.PasswordProtection("junior".toCharArray()));
+//        FileOutputStream fos = new FileOutputStream(GDUtils.SECRET_KEY);
+//        ks.store(fos, "123456".toCharArray());
+//        fos.close();
+//        Cipher cipher = Cipher.getInstance("AES");
+//        cipher.init(Cipher.ENCRYPT_MODE, key);
 }

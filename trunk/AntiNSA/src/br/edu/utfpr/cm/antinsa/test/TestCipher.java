@@ -61,9 +61,9 @@ public class TestCipher {
     public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
         try {
             KeyGenerator keygen = KeyGenerator.getInstance("AES");
-//            keygen.init(128);
+           keygen.init(128);
             SecretKey key = keygen.generateKey();
-            KeyStore ks = KeyStore.getInstance("JCEKS");
+            KeyStore ks = KeyStore.getInstance("BKS");
             ks.load(null, null);
             KeyStore.SecretKeyEntry skEntry = new KeyStore.SecretKeyEntry(key);
             ks.setEntry("chave", skEntry, new KeyStore.PasswordProtection("junior".toCharArray()));

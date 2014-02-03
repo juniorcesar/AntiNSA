@@ -33,8 +33,7 @@ public class TransactionManager {
         String sql = "CREATE TABLE IF NOT EXISTS DATAFILE "
                 + "(ID INTEGER PRIMARY KEY AUTOINCREMENT  NOT NULL,"
                 + " NAME           TEXT UNIQUE   NOT NULL, "
-                + " SIZE            INT     NOT NULL, "
-                + " DATE            INT     NOT NULL, "
+                + " DATE            LONG     NOT NULL, "
                 + " LOCAL_HASH        TEXT , "
                 + " CLOUD_HASH        TEXT )";
         stmt.executeUpdate(sql);

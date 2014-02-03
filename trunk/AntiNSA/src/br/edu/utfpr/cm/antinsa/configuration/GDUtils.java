@@ -18,7 +18,7 @@ import org.json.JSONObject;
  */
 public class GDUtils {
 
-    public static final File SECRET_KEY = new File(Config.STORE_CONFIG + "/chave.keystore");
+    public static final File SECRET_KEY = new File(Config.STORE_CONFIG + "/antinsa.keystore");
     public static final File STORE_CONFIG_GOOGLE_DRIVE = new File(Config.STORE_CONFIG + "/googledrive");
     public static final File CLIENT_SECRETS = new File(STORE_CONFIG_GOOGLE_DRIVE + "/client_secrets.json");
     public static final File CACHE_DIR = new File(Config.STORE_DEFAULT + "/.cache");
