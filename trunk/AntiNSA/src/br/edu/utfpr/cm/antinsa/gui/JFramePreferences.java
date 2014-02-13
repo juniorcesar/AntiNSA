@@ -5,9 +5,9 @@
 package br.edu.utfpr.cm.antinsa.gui;
 
 import br.edu.utfpr.cm.antinsa.configuration.GDUtils;
-import br.edu.utfpr.cm.antinsa.oauth.googledrive.GoogleDriveOAuth;
+import br.edu.utfpr.cm.antinsa.googledrive.GoogleDriveOAuth;
 import br.edu.utfpr.cm.antinsa.configuration.Config;
-import br.edu.utfpr.cm.antinsa.controller.GoogleDriveController;
+import br.edu.utfpr.cm.antinsa.googledrive.GoogleDriveController;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import javax.swing.JOptionPane;

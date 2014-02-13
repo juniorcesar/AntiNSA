@@ -4,7 +4,7 @@
  */
 package br.edu.utfpr.cm.antinsa.configuration;
 
-import br.edu.utfpr.cm.antinsa.database.TransactionManager;
+import br.edu.utfpr.cm.antinsa.dao.TransactionManager;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;

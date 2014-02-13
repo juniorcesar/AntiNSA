@@ -50,16 +50,5 @@ public class KeyManager {
         ks.store(fos, "keymanager".toCharArray());
         fos.close();
     }
-    //        KeyGenerator keygen = KeyGenerator.getInstance("AES");
-//        keygen.init(128);
-//        SecretKey key = keygen.generateKey();
-//        KeyStore ks = KeyStore.getInstance("JCEKS");
-//        ks.load(null, null);
-//        KeyStore.SecretKeyEntry skEntry = new KeyStore.SecretKeyEntry(key);
-//        ks.setEntry("chave", skEntry, new KeyStore.PasswordProtection("junior".toCharArray()));
-//        FileOutputStream fos = new FileOutputStream(GDUtils.SECRET_KEY);
-//        ks.store(fos, "123456".toCharArray());
-//        fos.close();
-//        Cipher cipher = Cipher.getInstance("AES");
-//        cipher.init(Cipher.ENCRYPT_MODE, key);
+ 
 }

@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.edu.utfpr.cm.antinsa.oauth.googledrive;
+package br.edu.utfpr.cm.antinsa.googledrive;
 
 import br.edu.utfpr.cm.antinsa.configuration.GDUtils;
 import br.edu.utfpr.cm.antinsa.configuration.Config;

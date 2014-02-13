@@ -2,16 +2,15 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.edu.utfpr.cm.antinsa.controller;
+package br.edu.utfpr.cm.antinsa.googledrive;
 
-import br.edu.utfpr.cm.antinsa.oauth.googledrive.GoogleDriveOAuth;
 import br.edu.utfpr.cm.antinsa.configuration.GDUtils;
-import br.edu.utfpr.cm.antinsa.service.googledrive.GoogleDrive;
+import br.edu.utfpr.cm.antinsa.googledrive.GoogleDrive;
 import br.edu.utfpr.cm.antinsa.configuration.Config;
-import br.edu.utfpr.cm.antinsa.database.DaoDataFile;
+import br.edu.utfpr.cm.antinsa.dao.DaoDataFile;
 import br.edu.utfpr.cm.antinsa.security.KeyManager;
 import br.edu.utfpr.cm.antinsa.security.SecretKeyAESCrypto;
-import br.edu.utfpr.cm.antinsa.service.googledrive.DataFile;
+import br.edu.utfpr.cm.antinsa.googledrive.DataFile;
 import br.edu.utfpr.cm.antinsa.security.HashGenerator;
 import br.edu.utfpr.cm.antinsa.util.Util;
 import com.google.api.services.drive.model.File;
@@ -85,6 +84,7 @@ public class GoogleDriveController extends Thread {
                     }
                 } else {
                     //A aplicacao nao esta devidamente configurada, e necessario reinicializar o aplicativo ou não há conexão com o serviço
+                    interrupt();
                 }
             }
         } catch (Exception ex) {

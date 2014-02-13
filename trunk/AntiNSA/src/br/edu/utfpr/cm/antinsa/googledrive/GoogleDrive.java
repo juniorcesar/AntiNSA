@@ -2,10 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.edu.utfpr.cm.antinsa.service.googledrive;
+package br.edu.utfpr.cm.antinsa.googledrive;
 
 import br.edu.utfpr.cm.antinsa.configuration.GDUtils;
-import br.edu.utfpr.cm.antinsa.oauth.googledrive.GoogleDriveOAuth;
 import br.edu.utfpr.cm.antinsa.configuration.Config;
 import br.edu.utfpr.cm.antinsa.util.Util;
 import com.google.api.client.auth.oauth2.Credential;
@@ -128,7 +127,7 @@ public class GoogleDrive {
             }
             createDefaultFolder();
         } catch (IOException ex) {
-            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -143,7 +142,7 @@ public class GoogleDrive {
                 }
             }
         } catch (IOException ex) {
-            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
         }
         return null;
     }
@@ -162,7 +161,7 @@ public class GoogleDrive {
                 }
             }
         } catch (IOException ex) {
-            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
         }
         return null;
     }
@@ -190,8 +189,7 @@ public class GoogleDrive {
                     return fileCloud;
 
                 } catch (IOException ex) {
-                    Logger.getLogger(GoogleDrive.class
-                            .getName()).log(Level.SEVERE, null, ex);
+                    JOptionPane.showMessageDialog(null, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
                 }
             } else {
                 JOptionPane.showMessageDialog(null, "The user quota has been exceeded!", "WARNING", JOptionPane.WARNING_MESSAGE);
@@ -212,9 +210,9 @@ public class GoogleDrive {
                     return true;
                 }
             } catch (IOException ex) {
-                ex.printStackTrace();
+               JOptionPane.showMessageDialog(null, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
             } catch (GeneralSecurityException ex) {
-                ex.printStackTrace();
+               JOptionPane.showMessageDialog(null, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
             }
         }
         return false;
@@ -240,7 +238,7 @@ public class GoogleDrive {
                         return service.files().update(fileCloud.getId(), body, mediaContent).execute();
                     }
                 } catch (IOException ex) {
-                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
                 }
             } else {
                 JOptionPane.showMessageDialog(null, "The user quota has been exceeded!", "WARNING", JOptionPane.WARNING_MESSAGE);
@@ -272,7 +270,7 @@ public class GoogleDrive {
                 return true;
             }
         } catch (IOException ex) {
-            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
         }
         return false;
     }

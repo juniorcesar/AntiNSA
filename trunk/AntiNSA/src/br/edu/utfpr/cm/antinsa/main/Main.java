@@ -5,7 +5,7 @@
 package br.edu.utfpr.cm.antinsa.main;
 
 import br.edu.utfpr.cm.antinsa.configuration.Config;
-import br.edu.utfpr.cm.antinsa.controller.GoogleDriveController;
+import br.edu.utfpr.cm.antinsa.googledrive.GoogleDriveController;
 import br.edu.utfpr.cm.antinsa.gui.JFramePreferences;
 import java.io.IOException;
 import java.sql.SQLException;

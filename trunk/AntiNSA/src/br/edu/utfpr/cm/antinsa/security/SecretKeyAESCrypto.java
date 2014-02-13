@@ -24,15 +24,14 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
 /**
- *
+ *    É possível utilizar 3 parâmetros, no qual o primeiro parâmetro é o algortimo de critografia, o segundo é o modo com que será realizado 
+ * (No caso o modo ECB fornece confidencia e não assegura integridade das informações),
+  * o último é o esquema de preenchimento dos blocos. 
  * @author junior
  */
-public class SecretKeyAESCrypto implements Crypto {
+  public class SecretKeyAESCrypto{
 
     private Cipher cipher;
-    /*É possível utilizar 3 parâmetros, no qual o primeiro parâmetro é o algortimo de critografia, o segundo é o modo com que será realizado 
-     * (No caso o modo ECB fornece confidencia e não assegura integridade das informações),
-     * o último é o esquema de preenchimento dos blocos. */
     private final String ALGORITHM = "AES";
     private SecretKey key;
     private File file;
@@ -46,7 +45,6 @@ public class SecretKeyAESCrypto implements Crypto {
         cipher = Cipher.getInstance(ALGORITHM);
     }
 
-    @Override
     public File encrypt(File file) {
         try {
             cipher.init(Cipher.ENCRYPT_MODE, key);
@@ -77,7 +75,6 @@ public class SecretKeyAESCrypto implements Crypto {
         return null;
     }
 
-    @Override
     public File decrypt(File file) {
         try {
             if (key == null) {
@@ -118,38 +115,24 @@ public class SecretKeyAESCrypto implements Crypto {
     }
     //Cria uma instância da Classe Cipher que passará a utilizar o algoritmo lido do arquivo .properties
 
-    private void initCipher() throws NoSuchAlgorithmException, NoSuchPaddingException {
-        cipher = Cipher.getInstance(ALGORITHM);
 
-        //Implementar o KeyManager para gerenciar as chaves que forem utilizadas
-        KeyGenerator keygen = KeyGenerator.getInstance(ALGORITHM);
-        keygen.init(size);
-        key = keygen.generateKey();
+    public void initCipher() {
+        try {
+            cipher = Cipher.getInstance(ALGORITHM);
+
+            //Implementar o KeyManager para gerenciar as chaves que forem utilizadas
+            KeyGenerator keygen = KeyGenerator.getInstance(ALGORITHM);
+            keygen.init(size);
+            key = keygen.generateKey();
+        } catch (NoSuchAlgorithmException ex) {
+            Logger.getLogger(SecretKeyAESCrypto.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchPaddingException ex) {
+            Logger.getLogger(SecretKeyAESCrypto.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
     }
 
     //Criar método para salvar as configurações em um arquivo .properties e depois realizar leitura por aqui
     private void loadProperties() {
     }
-//    private File getFile() throws FileNotFoundException, IOException {
-//        if (cipherInputStream != null && file.exists()) {
-//
-//            //Encontrar uma maneira de salvar o arquivo em um File na memória
-//            tempFile = new File(file.getName());
-//
-//            bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(tempFile));
-//            int read = 0;
-//            byte[] bytes = new byte[1024];
-//
-//            while ((read = cipherInputStream.read(bytes)) != -1) {
-//                bufferedOutputStream.write(bytes, 0, read);
-//            }
-//            bufferedOutputStream.close();
-//            bufferedInputStream.close();
-//
-//            return tempFile;
-//        }
-//
-//        return null;
-//    }
 }
