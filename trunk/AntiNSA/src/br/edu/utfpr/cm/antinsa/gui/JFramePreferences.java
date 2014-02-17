@@ -8,8 +8,17 @@ import br.edu.utfpr.cm.antinsa.configuration.GDUtils;
 import br.edu.utfpr.cm.antinsa.googledrive.GoogleDriveOAuth;
 import br.edu.utfpr.cm.antinsa.configuration.Config;
 import br.edu.utfpr.cm.antinsa.googledrive.GoogleDriveController;
+import br.edu.utfpr.cm.antinsa.security.KeyManager;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.security.InvalidKeyException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.crypto.NoSuchPaddingException;
 import javax.swing.JOptionPane;
 
 /**
@@ -62,8 +71,7 @@ public class JFramePreferences extends javax.swing.JFrame {
         jButtonDeleteAccount = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JSeparator();
         jSeparator5 = new javax.swing.JSeparator();
-        jToggleButtonAPIPersonal = new javax.swing.JToggleButton();
-        jButton1 = new javax.swing.JButton();
+        jButtonCopyKey = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jPanelFiles = new javax.swing.JPanel();
@@ -97,7 +105,7 @@ public class JFramePreferences extends javax.swing.JFrame {
                 .addGroup(jPanelGeneral2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabelLocation)
                     .addComponent(jTextFieldDefaultLocation, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(336, Short.MAX_VALUE))
+                .addContainerGap(268, Short.MAX_VALUE))
         );
 
         jTabbedPane3.addTab("General", jPanelGeneral2);
@@ -136,24 +144,19 @@ public class JFramePreferences extends javax.swing.JFrame {
             }
         });
 
-        jToggleButtonAPIPersonal.setText("Enable API access personal");
-        jToggleButtonAPIPersonal.setMaximumSize(new java.awt.Dimension(118, 34));
-        jToggleButtonAPIPersonal.setMinimumSize(new java.awt.Dimension(118, 34));
-        jToggleButtonAPIPersonal.setPreferredSize(new java.awt.Dimension(118, 33));
-
-        jButton1.setText("Get key");
-        jButton1.setMaximumSize(new java.awt.Dimension(72, 34));
-        jButton1.setMinimumSize(new java.awt.Dimension(72, 34));
-        jButton1.setPreferredSize(new java.awt.Dimension(72, 33));
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        jButtonCopyKey.setText("Save your key");
+        jButtonCopyKey.setMaximumSize(new java.awt.Dimension(72, 34));
+        jButtonCopyKey.setMinimumSize(new java.awt.Dimension(72, 34));
+        jButtonCopyKey.setPreferredSize(new java.awt.Dimension(72, 33));
+        jButtonCopyKey.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                jButtonCopyKeyActionPerformed(evt);
             }
         });
 
         jLabel3.setFont(new java.awt.Font("Cantarell", 0, 12)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 0, 0));
-        jLabel3.setText("Click this button to get cryptographic key.");
+        jLabel3.setText("Click this button to save your cryptographic key.");
 
         javax.swing.GroupLayout jPanelGoogleDriveLayout = new javax.swing.GroupLayout(jPanelGoogleDrive);
         jPanelGoogleDrive.setLayout(jPanelGoogleDriveLayout);
@@ -175,15 +178,16 @@ public class JFramePreferences extends javax.swing.JFrame {
                                 .addComponent(jLabel2)
                                 .addGap(18, 18, 18)
                                 .addComponent(jLabelEmail, javax.swing.GroupLayout.PREFERRED_SIZE, 366, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanelGoogleDriveLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(jToggleButtonAPIPersonal, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanelGoogleDriveLayout.createSequentialGroup()
-                                    .addComponent(jButtonAuth, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jButtonDeleteAccount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addComponent(jLabel3)
-                            .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(172, Short.MAX_VALUE))
+                            .addGroup(jPanelGoogleDriveLayout.createSequentialGroup()
+                                .addComponent(jButtonAuth, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButtonDeleteAccount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                .addContainerGap(123, Short.MAX_VALUE))
+            .addGroup(jPanelGoogleDriveLayout.createSequentialGroup()
+                .addGroup(jPanelGoogleDriveLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButtonCopyKey, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 287, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         jPanelGoogleDriveLayout.setVerticalGroup(
             jPanelGoogleDriveLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -193,8 +197,6 @@ public class JFramePreferences extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 8, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jToggleButtonAPIPersonal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(14, 14, 14)
                 .addGroup(jPanelGoogleDriveLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButtonAuth, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButtonDeleteAccount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -206,13 +208,13 @@ public class JFramePreferences extends javax.swing.JFrame {
                 .addGroup(jPanelGoogleDriveLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(jLabelEmail))
-                .addGap(18, 18, 18)
-                .addComponent(jSeparator5, javax.swing.GroupLayout.PREFERRED_SIZE, 4, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jSeparator5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 99, Short.MAX_VALUE))
+                .addComponent(jButtonCopyKey, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 44, Short.MAX_VALUE))
         );
 
         jTabbedPaneAccount.addTab("Google Drive", jPanelGoogleDrive);
@@ -225,7 +227,7 @@ public class JFramePreferences extends javax.swing.JFrame {
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 320, Short.MAX_VALUE)
+            .addGap(0, 252, Short.MAX_VALUE)
         );
 
         jTabbedPaneAccount.addTab("DropBox", jPanel2);
@@ -243,7 +245,7 @@ public class JFramePreferences extends javax.swing.JFrame {
             jPanelAccountLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanelAccountLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jTabbedPaneAccount, javax.swing.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE))
+                .addComponent(jTabbedPaneAccount, javax.swing.GroupLayout.DEFAULT_SIZE, 294, Short.MAX_VALUE))
         );
 
         jTabbedPane3.addTab("Account", jPanelAccount);
@@ -256,7 +258,7 @@ public class JFramePreferences extends javax.swing.JFrame {
         );
         jPanelFilesLayout.setVerticalGroup(
             jPanelFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 374, Short.MAX_VALUE)
+            .addGap(0, 306, Short.MAX_VALUE)
         );
 
         jTabbedPane3.addTab("Files", jPanelFiles);
@@ -269,7 +271,7 @@ public class JFramePreferences extends javax.swing.JFrame {
         );
         jPanelAboutLayout.setVerticalGroup(
             jPanelAboutLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 374, Short.MAX_VALUE)
+            .addGap(0, 306, Short.MAX_VALUE)
         );
 
         jTabbedPane3.addTab("About", jPanelAbout);
@@ -297,8 +299,8 @@ public class JFramePreferences extends javax.swing.JFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jTabbedPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 416, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jTabbedPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 348, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addComponent(jButtonClose, javax.swing.GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE)
                 .addContainerGap())
         );
@@ -312,11 +314,12 @@ public class JFramePreferences extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, "Your browser will be to open to perform authorization!", "Information", JOptionPane.INFORMATION_MESSAGE);
                 GoogleDriveOAuth.authorize();
                 jButtonDeleteAccount.setEnabled(true);
+                JOptionPane.showMessageDialog(this, "Authorization performed successfully!", "Sucessful", JOptionPane.INFORMATION_MESSAGE);
+                getKey();
                 if (driveController == null) {
                     driveController = new GoogleDriveController();
                 }
                 driveController.start();
-                JOptionPane.showMessageDialog(this, "Authorization performed successfully!", "Sucessful", JOptionPane.INFORMATION_MESSAGE);
                 setAccountInfo();
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(this, ex.getMessage(), "WARNING", JOptionPane.WARNING_MESSAGE);
@@ -336,7 +339,6 @@ public class JFramePreferences extends javax.swing.JFrame {
     private void jCheckBoxEnableGoogleItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCheckBoxEnableGoogleItemStateChanged
         setConfigGoogleDriveAccount();
         getConfigGoogleDriveAccount();
-
     }//GEN-LAST:event_jCheckBoxEnableGoogleItemStateChanged
 
     private void jButtonCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCloseActionPerformed
@@ -352,11 +354,13 @@ public class JFramePreferences extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButtonDeleteAccountActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        JPanelGetCryptographicKey panelKey = new JPanelGetCryptographicKey();
-        panelKey.setVisible(true);
-        panelKey.show();
-    }//GEN-LAST:event_jButton1ActionPerformed
+    private void jButtonCopyKeyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCopyKeyActionPerformed
+        if (GDUtils.SECRET_KEY.exists()) {
+            saveKey();
+        } else {
+            JOptionPane.showMessageDialog(null, "Key not found", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_jButtonCopyKeyActionPerformed
 
     private void getConfigGoogleDriveAccount() {
         Boolean enable = Boolean.valueOf(Config.readXMLConfig("enable-google-drive").getValue());
@@ -364,12 +368,11 @@ public class JFramePreferences extends javax.swing.JFrame {
         jCheckBoxEnableGoogle.setSelected(enable);
         jButtonAuth.setEnabled(enable);
         if (GoogleDriveOAuth.isValidCredential()) {
+            jButtonCopyKey.setEnabled(enable);
             jButtonDeleteAccount.setEnabled(enable);
         } else {
             jButtonDeleteAccount.setEnabled(false);
         }
-        jToggleButtonAPIPersonal.setEnabled(enable);
-        jToggleButtonAPIPersonal.setSelected(enableAPIPersonal);
         setAccountInfo();
     }
 
@@ -433,9 +436,9 @@ public class JFramePreferences extends javax.swing.JFrame {
 //        });
 //    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButtonAuth;
     private javax.swing.JButton jButtonClose;
+    private javax.swing.JButton jButtonCopyKey;
     private javax.swing.JButton jButtonDeleteAccount;
     private javax.swing.JCheckBox jCheckBoxEnableGoogle;
     private javax.swing.JLabel jLabel1;
@@ -455,6 +458,46 @@ public class JFramePreferences extends javax.swing.JFrame {
     private javax.swing.JTabbedPane jTabbedPane3;
     private javax.swing.JTabbedPane jTabbedPaneAccount;
     private javax.swing.JTextField jTextFieldDefaultLocation;
-    private javax.swing.JToggleButton jToggleButtonAPIPersonal;
     // End of variables declaration//GEN-END:variables
+
+    private void getKey() {
+        int value = JOptionPane.showConfirmDialog(this, "Would you like to create a new key?", "Question", JOptionPane.YES_NO_OPTION);
+        if (JOptionPane.YES_OPTION == value) {
+            try {
+                KeyManager.generateKey();
+                JOptionPane.showMessageDialog(this, "Your key was generated and saved in the  configuration directory of application!", "Successful", JOptionPane.INFORMATION_MESSAGE);
+                int value1 = JOptionPane.showConfirmDialog(this, "Is recommended that you save your key in your smartphone using the application KeyManager \n"
+                        + "Would you like to make this now?", "Information", JOptionPane.YES_NO_OPTION);
+                if(JOptionPane.YES_OPTION == value1){
+                    saveKey();
+                }else if(JOptionPane.NO_OPTION ==  value1){
+                    
+                }
+            } catch (NoSuchAlgorithmException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } catch (KeyStoreException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } catch (CertificateException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } catch (NoSuchPaddingException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            } catch (InvalidKeyException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            }
+        } else if (JOptionPane.NO_OPTION == value) {
+        }
+    }
+
+    private void saveKey() {
+       //Criar metodo para enviar a chave para KeyManager ou salvar em outro local
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }
