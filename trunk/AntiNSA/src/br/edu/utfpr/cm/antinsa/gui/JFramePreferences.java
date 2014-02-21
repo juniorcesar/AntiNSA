@@ -73,9 +73,11 @@ public class JFramePreferences extends javax.swing.JFrame {
         jSeparator5 = new javax.swing.JSeparator();
         jButtonCopyKey = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
-        jPanel2 = new javax.swing.JPanel();
-        jPanelFiles = new javax.swing.JPanel();
         jPanelAbout = new javax.swing.JPanel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
         jButtonClose = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -144,7 +146,7 @@ public class JFramePreferences extends javax.swing.JFrame {
             }
         });
 
-        jButtonCopyKey.setText("Save your key");
+        jButtonCopyKey.setText("Save key");
         jButtonCopyKey.setMaximumSize(new java.awt.Dimension(72, 34));
         jButtonCopyKey.setMinimumSize(new java.awt.Dimension(72, 34));
         jButtonCopyKey.setPreferredSize(new java.awt.Dimension(72, 33));
@@ -219,19 +221,6 @@ public class JFramePreferences extends javax.swing.JFrame {
 
         jTabbedPaneAccount.addTab("Google Drive", jPanelGoogleDrive);
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 563, Short.MAX_VALUE)
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 252, Short.MAX_VALUE)
-        );
-
-        jTabbedPaneAccount.addTab("DropBox", jPanel2);
-
         javax.swing.GroupLayout jPanelAccountLayout = new javax.swing.GroupLayout(jPanelAccount);
         jPanelAccount.setLayout(jPanelAccountLayout);
         jPanelAccountLayout.setHorizontalGroup(
@@ -250,28 +239,43 @@ public class JFramePreferences extends javax.swing.JFrame {
 
         jTabbedPane3.addTab("Account", jPanelAccount);
 
-        javax.swing.GroupLayout jPanelFilesLayout = new javax.swing.GroupLayout(jPanelFiles);
-        jPanelFiles.setLayout(jPanelFilesLayout);
-        jPanelFilesLayout.setHorizontalGroup(
-            jPanelFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 599, Short.MAX_VALUE)
-        );
-        jPanelFilesLayout.setVerticalGroup(
-            jPanelFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 306, Short.MAX_VALUE)
-        );
+        jLabel4.setText("AntiNSA - Version 1.0");
 
-        jTabbedPane3.addTab("Files", jPanelFiles);
+        jLabel5.setText("Junior Cesar de Oliveira");
+
+        jLabel6.setText("Developed by: ");
+
+        jLabel7.setText("Luiz Arthur Feitosa dos Santos");
 
         javax.swing.GroupLayout jPanelAboutLayout = new javax.swing.GroupLayout(jPanelAbout);
         jPanelAbout.setLayout(jPanelAboutLayout);
         jPanelAboutLayout.setHorizontalGroup(
             jPanelAboutLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 599, Short.MAX_VALUE)
+            .addGroup(jPanelAboutLayout.createSequentialGroup()
+                .addGroup(jPanelAboutLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanelAboutLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel4))
+                    .addGroup(jPanelAboutLayout.createSequentialGroup()
+                        .addGap(21, 21, 21)
+                        .addGroup(jPanelAboutLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel7)
+                            .addComponent(jLabel5)
+                            .addComponent(jLabel6))))
+                .addContainerGap(372, Short.MAX_VALUE))
         );
         jPanelAboutLayout.setVerticalGroup(
             jPanelAboutLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 306, Short.MAX_VALUE)
+            .addGroup(jPanelAboutLayout.createSequentialGroup()
+                .addGap(20, 20, 20)
+                .addComponent(jLabel4)
+                .addGap(46, 46, 46)
+                .addComponent(jLabel6)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel5)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel7)
+                .addContainerGap(164, Short.MAX_VALUE))
         );
 
         jTabbedPane3.addTab("About", jPanelAbout);
@@ -308,6 +312,27 @@ public class JFramePreferences extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jButtonCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCloseActionPerformed
+        setVisible(false);
+    }//GEN-LAST:event_jButtonCloseActionPerformed
+
+    private void jButtonCopyKeyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCopyKeyActionPerformed
+        if (GDUtils.SECRET_KEY.exists()) {
+            saveKey();
+        } else {
+            JOptionPane.showMessageDialog(null, "Key not found", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_jButtonCopyKeyActionPerformed
+
+    private void jButtonDeleteAccountActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDeleteAccountActionPerformed
+        // TODO add your handling code here:
+        int value = JOptionPane.showConfirmDialog(this, "Would you like to delete your Google Drive account this computer?", "Information", JOptionPane.YES_NO_OPTION);
+        if (value == JOptionPane.YES_OPTION) {
+            deleteGoogleAccount();
+            JOptionPane.showMessageDialog(null, "Your Google Drive account was deleted this computer with success!", "Sucessful", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }//GEN-LAST:event_jButtonDeleteAccountActionPerformed
+
     private void jButtonAuthActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAuthActionPerformed
         if (!GoogleDriveOAuth.isValidCredential()) {
             try {
@@ -340,27 +365,6 @@ public class JFramePreferences extends javax.swing.JFrame {
         setConfigGoogleDriveAccount();
         getConfigGoogleDriveAccount();
     }//GEN-LAST:event_jCheckBoxEnableGoogleItemStateChanged
-
-    private void jButtonCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCloseActionPerformed
-        setVisible(false);
-    }//GEN-LAST:event_jButtonCloseActionPerformed
-
-    private void jButtonDeleteAccountActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDeleteAccountActionPerformed
-        // TODO add your handling code here:
-        int value = JOptionPane.showConfirmDialog(this, "Would you like to delete your Google Drive account this computer?", "Information", JOptionPane.YES_NO_OPTION);
-        if (value == JOptionPane.YES_OPTION) {
-            deleteGoogleAccount();
-            JOptionPane.showMessageDialog(null, "Your Google Drive account was deleted this computer with success!", "Sucessful", JOptionPane.INFORMATION_MESSAGE);
-        }
-    }//GEN-LAST:event_jButtonDeleteAccountActionPerformed
-
-    private void jButtonCopyKeyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCopyKeyActionPerformed
-        if (GDUtils.SECRET_KEY.exists()) {
-            saveKey();
-        } else {
-            JOptionPane.showMessageDialog(null, "Key not found", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }//GEN-LAST:event_jButtonCopyKeyActionPerformed
 
     private void getConfigGoogleDriveAccount() {
         Boolean enable = Boolean.valueOf(Config.readXMLConfig("enable-google-drive").getValue());
@@ -444,13 +448,15 @@ public class JFramePreferences extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabelEmail;
     private javax.swing.JLabel jLabelLocation;
     private javax.swing.JLabel jLabelName;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanelAbout;
     private javax.swing.JPanel jPanelAccount;
-    private javax.swing.JPanel jPanelFiles;
     private javax.swing.JPanel jPanelGeneral2;
     private javax.swing.JPanel jPanelGoogleDrive;
     private javax.swing.JSeparator jSeparator1;
@@ -466,12 +472,11 @@ public class JFramePreferences extends javax.swing.JFrame {
             try {
                 KeyManager.generateKey();
                 JOptionPane.showMessageDialog(this, "Your key was generated and saved in the  configuration directory of application!", "Successful", JOptionPane.INFORMATION_MESSAGE);
-                int value1 = JOptionPane.showConfirmDialog(this, "Is recommended that you save your key in your smartphone using the application KeyManager \n"
-                        + "Would you like to make this now?", "Information", JOptionPane.YES_NO_OPTION);
-                if(JOptionPane.YES_OPTION == value1){
+                int value1 = JOptionPane.showConfirmDialog(this, "Is recommended that you save your key in a smartphone using the application KeyManager \n or to save in another local!"
+                        + "\nWould you like to save your key now?", "Information", JOptionPane.YES_NO_OPTION);
+                if (JOptionPane.YES_OPTION == value1) {
                     saveKey();
-                }else if(JOptionPane.NO_OPTION ==  value1){
-                    
+                } else if (JOptionPane.NO_OPTION == value1) {
                 }
             } catch (NoSuchAlgorithmException ex) {
                 JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
@@ -497,7 +502,8 @@ public class JFramePreferences extends javax.swing.JFrame {
     }
 
     private void saveKey() {
-       //Criar metodo para enviar a chave para KeyManager ou salvar em outro local
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        JFrameSaveKey saveKey = new JFrameSaveKey();
+        saveKey.setLocationRelativeTo(null);
+        saveKey.setVisible(true);
     }
 }

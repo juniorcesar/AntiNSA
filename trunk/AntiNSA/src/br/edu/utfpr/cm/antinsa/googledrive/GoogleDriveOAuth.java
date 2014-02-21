@@ -6,6 +6,7 @@ package br.edu.utfpr.cm.antinsa.googledrive;
 
 import br.edu.utfpr.cm.antinsa.configuration.GDUtils;
 import br.edu.utfpr.cm.antinsa.configuration.Config;
+import br.edu.utfpr.cm.antinsa.util.Util;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
@@ -103,14 +104,16 @@ public class GoogleDriveOAuth {
     }
 
     private static void saveAccountInfo() throws IOException {
-        try {
-            Config.readXMLConfig("google-name").setText(userInfo().getName());
-            Config.readXMLConfig("google-email").setText(userInfo().getEmail());
-            Config.saveXMLConfig();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        } catch (GeneralSecurityException ex) {
-            ex.printStackTrace();
+        if (Util.verifyServiceConnection(GDUtils.URL_SERVICE)) {
+            try {
+                Config.readXMLConfig("google-name").setText(userInfo().getName());
+                Config.readXMLConfig("google-email").setText(userInfo().getEmail());
+                Config.saveXMLConfig();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            } catch (GeneralSecurityException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 

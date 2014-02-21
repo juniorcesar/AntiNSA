@@ -9,6 +9,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -27,12 +28,13 @@ public class Util {
         Path path = Paths.get(relativePath);
         return path.getFileName().toFile().getName();
     }
+
     public static String getRelativePath(String relativePathFile) throws IOException {
         Path path = Paths.get(relativePathFile);
         return path.getFileName().toFile().getAbsolutePath();
     }
-    
-     public static Boolean verifyServiceConnection(String address) {
+
+    public static Boolean verifyServiceConnection(String address) {
 
         try {
             URL url = new URL(address);
@@ -44,6 +46,9 @@ public class Util {
             if (x == 200) {
                 return true;
             }
+        } catch (UnknownHostException ex) {
+            ex.printStackTrace();
+            return false;
         } catch (MalformedURLException ex) {
             ex.printStackTrace();
             return false;

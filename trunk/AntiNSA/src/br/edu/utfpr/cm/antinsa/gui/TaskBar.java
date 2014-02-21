@@ -154,8 +154,8 @@ public class TaskBar {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(null, "AntiNSA\n"
-                        + "Versão 1.0\n\n"
-                        + "Desenvolvido por Junior Cesar de Oliveira\n","",JOptionPane.INFORMATION_MESSAGE);
+                        + "Version 1.0\n\n"
+                        + "Developed by:\n Junior Cesar de Oliveira \n Luiz Arthur Feitosa dos Santos","",JOptionPane.INFORMATION_MESSAGE);
 
             }
         });
@@ -169,14 +169,14 @@ public class TaskBar {
             }
         });
 
-        MenuItem miHelp = new MenuItem("Help");
-        miHelp.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                frame.setVisible(true);
-                frame.setExtendedState(JFrame.NORMAL);
-            }
-        });
+//        MenuItem miHelp = new MenuItem("Help");
+//        miHelp.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                frame.setVisible(true);
+//                frame.setExtendedState(JFrame.NORMAL);
+//            }
+//        });
         
         MenuItem miExit = new MenuItem("Exit");
         miExit.addActionListener(new ActionListener() {
@@ -190,8 +190,8 @@ public class TaskBar {
         popup.addSeparator();
         popup.add(miReturn);
         popup.addSeparator();
-        popup.add(miHelp);
-        popup.addSeparator();
+//        popup.add(miHelp);
+//        popup.addSeparator();
         popup.add(miExit);
 
         return popup;
