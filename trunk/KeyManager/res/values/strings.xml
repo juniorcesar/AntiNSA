@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Key Manager</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_server">ServerActivity</string>
+    <string name="title_activity_ckm">CKMActivity</string>
+    <string name="title_activity_keys">KeysActivity</string>
+    <string name="title_activity_port">PortActivity</string>
+    <string name="title_activity_key_generator">KeyGeneratorActivity</string>
+    <string name="title_activity_port_config">PortConfigActivity</string>
+
+</resources>

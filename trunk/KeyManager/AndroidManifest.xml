@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="br.edu.utfpr.cm.keymanager.main"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="18" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_app"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name="br.edu.utfpr.cm.keymanager.main.MainActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="br.edu.utfpr.cm.keymanager.activity.ServerActivity"
+            android:label="@string/title_activity_server" >
+        </activity>
+        <activity
+            android:name="br.edu.utfpr.cm.keymanager.activity.ConfigActivity"
+            android:label="@string/title_activity_ckm" >
+        </activity>
+        <activity
+            android:name="br.edu.utfpr.cm.keymanager.activity.KeysActivity"
+            android:label="@string/title_activity_keys" >
+        </activity>
+
+        <service android:name="br.edu.utfpr.cm.keymanager.server.SocketServerKey" >
+            <intent-filter>
+                <action android:name="INICIAR_SERVICO" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+
+        <activity
+            android:name="br.edu.utfpr.cm.keymanager.activity.PortActivity"
+            android:label="@string/title_activity_port" >
+        </activity>
+        <activity
+            android:name="br.edu.utfpr.cm.keymanager.activity.KeyGeneratorActivity"
+            android:label="@string/title_activity_key_generator" >
+        </activity>
+        <activity
+            android:name="br.edu.utfpr.cm.keymanager.main.PortConfigActivity"
+            android:label="@string/title_activity_port_config" >
+        </activity>
+    </application>
+
+</manifest>
