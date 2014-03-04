@@ -3,11 +3,13 @@ package br.edu.utfpr.cm.keymanager.util;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+
 import org.apache.http.conn.util.InetAddressUtils;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 
 public class Utils {
 
@@ -167,4 +169,34 @@ public class Utils {
 		}
 	}
 
+	public static String getStringFromInputStream(InputStream is) {
+
+		BufferedReader br = null;
+		StringBuilder sb = new StringBuilder();
+
+		String line;
+		try {
+
+			br = new BufferedReader(new InputStreamReader(is));
+			while ((line = br.readLine()) != null) {
+				sb.append(line);
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (br != null) {
+				try {
+					br.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		return sb.toString();
+
+	}
+	
+	
 }

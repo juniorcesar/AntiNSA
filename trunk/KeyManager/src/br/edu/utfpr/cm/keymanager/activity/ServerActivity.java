@@ -1,17 +1,24 @@
 package br.edu.utfpr.cm.keymanager.activity;
 
-import br.edu.utfpr.cm.keymanager.server.ServerKey;
-import br.edu.utfpr.cm.keymanager.server.SocketServerKey;
-import br.edu.utfpr.cm.keymanager.util.Utils;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
 
-import br.edu.utfpr.cm.keymanager.main.R;
-
-import android.os.Bundle;
+import android.R.string;
 import android.app.Activity;
+import android.content.Context;
+import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import br.edu.utfpr.cm.keymanager.main.R;
+import br.edu.utfpr.cm.keymanager.server.SocketServerKey;
+import br.edu.utfpr.cm.keymanager.util.Config;
+import br.edu.utfpr.cm.keymanager.util.Utils;
 
 public class ServerActivity extends Activity {
 
@@ -22,12 +29,16 @@ public class ServerActivity extends Activity {
 	private int imgButton;
 	private SocketServerKey server;
 	private Thread serverThread;
+	private FileInputStream input;
+	private static FileOutputStream output;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		
 		setContentView(R.layout.activity_server);
-				btnPower = (ImageButton) findViewById(R.id.imbPower);
+		btnPower = (ImageButton) findViewById(R.id.imbPower);
 		tvStatus = (TextView) findViewById(R.id.tvStatus);
 		tvStatus.setText("Start");
 		tvAddress = (TextView) findViewById(R.id.tvAddress);
@@ -37,10 +48,11 @@ public class ServerActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
+
 				if (status == false
 						&& Utils.isConnected(getApplicationContext())) {
 					if (server == null) {
-						server = new SocketServerKey();
+						server = new SocketServerKey(getBaseContext());
 					}
 					serverThread = new Thread(server);
 					serverThread.start();
@@ -94,4 +106,6 @@ public class ServerActivity extends Activity {
 		btnPower.setImageResource(savedInstanceState.getInt("ic_power"));
 		imgButton = savedInstanceState.getInt("ic_power");
 	}
+
+	
 }

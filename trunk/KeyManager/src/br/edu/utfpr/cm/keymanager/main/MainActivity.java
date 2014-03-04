@@ -6,9 +6,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
-
+import java.sql.SQLException;
 import br.edu.utfpr.cm.keymanager.main.R;
 import br.edu.utfpr.cm.keymanager.util.Config;
+import br.edu.utfpr.cm.keymanager.util.Utils;
 import br.edu.utfpr.cm.keymanager.activity.ConfigActivity;
 import br.edu.utfpr.cm.keymanager.activity.KeysActivity;
 import br.edu.utfpr.cm.keymanager.activity.ServerActivity;
@@ -17,6 +18,7 @@ import android.os.Environment;
 import android.app.ActivityGroup;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.util.Log;
 import android.view.Menu;
@@ -27,6 +29,7 @@ import android.widget.Toast;
 public class MainActivity extends ActivityGroup {
 	static TabHost tabHost;
 	static int tab = 1;
+	private static FileOutputStream fos;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -52,33 +55,13 @@ public class MainActivity extends ActivityGroup {
 				.setContent(intent);
 		tabHost.addTab(spec);
 
-		intent = new Intent().setClass(this, KeysActivity.class);
-		spec = tabHost.newTabSpec("1")
-				.setIndicator("", res.getDrawable(R.drawable.ic_keys))
-				.setContent(intent);
-		tabHost.addTab(spec);
+//		intent = new Intent().setClass(this, KeysActivity.class);
+//		spec = tabHost.newTabSpec("1")
+//				.setIndicator("", res.getDrawable(R.drawable.ic_keys))
+//				.setContent(intent);
+//		tabHost.addTab(spec);
 
 		tabHost.setCurrentTab(0);
-		setup();
-	}
-
-	private void setup() {
-		try {
-			openFileInput(Config.CONFIG_FILE);
-
-		} catch (FileNotFoundException e) {
-			Log.v("ERRO", "Arquivo não existe");
-			Config config = new Config();
-			try {
-				config.generateXml(openFileOutput(config.CONFIG_FILE,
-						Context.MODE_PRIVATE));
-			} catch (FileNotFoundException e1) {
-				e1.printStackTrace();
-			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-		}
 
 	}
 
