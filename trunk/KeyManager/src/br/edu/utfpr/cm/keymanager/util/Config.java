@@ -44,15 +44,12 @@ import android.widget.Toast;
 
 public class Config {
 	public static final String CONFIG = "KEY_MANAGER";
-	public static final String KEY = "KEY";
 	private static Context context;
 	private static SharedPreferences shared;
 
 	public Config(Context context) {
 		this.context = context;
-//		shared = context.getSharedPreferences(CONFIG,
-//				Context.MODE_PRIVATE);
-		shared = PreferenceManager.getDefaultSharedPreferences(context);
+		shared = context.getSharedPreferences(CONFIG, Context.MODE_PRIVATE);
 	}
 
 	public void setSharedPreferences(String name, String value) {
@@ -72,9 +69,15 @@ public class Config {
 	public String[] getKeysName() {
 		int count = 0;
 		Map<String, ?> map = shared.getAll();
-	Set<String> set = map.keySet();
-	
-		return (String[]) set.toArray();
+		Set<String> set = map.keySet();
+		String[] keys = new String[set.size()];
+
+		for (String key : set) {
+			keys[count] = key;
+			count++;
+		}
+
+		return keys;
 	}
 
 }

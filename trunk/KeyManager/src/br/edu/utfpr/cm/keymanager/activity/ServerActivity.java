@@ -8,11 +8,14 @@ import java.io.InputStreamReader;
 
 import android.R.string;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import br.edu.utfpr.cm.keymanager.main.R;
@@ -29,20 +32,20 @@ public class ServerActivity extends Activity {
 	private int imgButton;
 	private SocketServerKey server;
 	private Thread serverThread;
-	private FileInputStream input;
-	private static FileOutputStream output;
+	private Button btnshow;
+	private Config config;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		
+		config = new Config(getApplicationContext());
 		setContentView(R.layout.activity_server);
 		btnPower = (ImageButton) findViewById(R.id.imbPower);
 		tvStatus = (TextView) findViewById(R.id.tvStatus);
 		tvStatus.setText("Start");
 		tvAddress = (TextView) findViewById(R.id.tvAddress);
 		tvAddress.setText("Server stoped...");
+		btnshow = (Button) findViewById(R.id.btnshow);
 
 		btnPower.setOnClickListener(new View.OnClickListener() {
 
@@ -52,7 +55,8 @@ public class ServerActivity extends Activity {
 				if (status == false
 						&& Utils.isConnected(getApplicationContext())) {
 					if (server == null) {
-						server = new SocketServerKey(getBaseContext());
+						server = new SocketServerKey(config,
+								ServerActivity.this);
 					}
 					serverThread = new Thread(server);
 					serverThread.start();
@@ -77,7 +81,36 @@ public class ServerActivity extends Activity {
 
 			}
 		});
+		btnshow.setOnClickListener(new View.OnClickListener() {
 
+			@Override
+			public void onClick(View v) {
+				AlertDialog.Builder alert = new AlertDialog.Builder(
+						ServerActivity.this);
+
+				alert.setTitle("Stored keys");
+
+				String[] keys = config.getKeysName();
+				String msg = "";
+				if (keys.length != 0) {
+					for (String key : keys) {
+						msg += key + "\n";
+					}
+					alert.setMessage(msg);
+				} else {
+					alert.setMessage("There isn't keys\n");
+				}
+
+				alert.setPositiveButton("Ok",
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog,
+									int whichButton) {
+							}
+						});
+				alert.show();
+
+			}
+		});
 	}
 
 	@Override
@@ -107,5 +140,4 @@ public class ServerActivity extends Activity {
 		imgButton = savedInstanceState.getInt("ic_power");
 	}
 
-	
 }

@@ -11,8 +11,11 @@ import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
 
+import br.edu.utfpr.cm.keymanager.activity.ServerActivity;
 import br.edu.utfpr.cm.keymanager.util.Config;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.util.Log;
 
 public class SocketServerKey extends Thread {
@@ -23,11 +26,12 @@ public class SocketServerKey extends Thread {
 	private final String[] enabledCipherSuites = { "SSL_DH_anon_WITH_RC4_128_MD5" };
 	private static int typeMessage = 0;
 	private static Config config;
+	private ServerActivity parent;
 
-
-	public SocketServerKey(Context context) {
+	public SocketServerKey(Config config, ServerActivity parent) {
 		super();
-		config = new Config(context);
+		this.config = config;
+		this.parent = parent;
 	}
 
 	@Override
@@ -38,9 +42,46 @@ public class SocketServerKey extends Thread {
 			server = (SSLServerSocket) factory.createServerSocket(PORT);
 			server.setEnabledCipherSuites(enabledCipherSuites);
 			while (!isInterrupted()) {
-				Log.v("junior", config.getSharedPreferencesKey("JUNIOR"));
 				client = (SSLSocket) server.accept();
-				Connect c = new Connect(client,config);
+				parent.runOnUiThread(new Runnable() {
+					public void run() {
+						AlertDialog.Builder alert = new AlertDialog.Builder(
+								parent);
+
+						alert.setTitle("Information");
+						alert.setMessage("The address "
+								+ client.getInetAddress().getHostAddress()
+								+ " wants to connect to this server"
+								+ "\n Would you like authorize this connection?");
+
+						alert.setPositiveButton("Yes",
+								new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog,
+											int whichButton) {
+										try {
+											dialog.dismiss();
+											Connect c = new Connect(client,
+													config, parent);
+										} catch (Exception e) {
+											e.printStackTrace();
+										}
+									}
+								});
+						alert.setNegativeButton("No",
+								new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog,
+											int whichButton) {
+										try {
+											client.close();
+										} catch (IOException e) {
+											e.printStackTrace();
+										}
+									}
+								});
+						alert.show();
+					}
+				});
+
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
