@@ -268,9 +268,11 @@ public class JDialogReceiveKey extends javax.swing.JDialog {
                     if (copyKey) {
                         JOptionPane.showMessageDialog(this, "The key was save with successfully!", "Sucessful", JOptionPane.INFORMATION_MESSAGE);
                     }
+                }else{
+                    JOptionPane.showMessageDialog(this, "Invalid keystore format!", "Warning", JOptionPane.WARNING_MESSAGE);
                 }
             } else {
-                JOptionPane.showMessageDialog(this, "You need to select the location!", "WARNING", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "You need to select the location!", "Warning", JOptionPane.WARNING_MESSAGE);
             }
         } else {
 
