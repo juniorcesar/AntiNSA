@@ -11,6 +11,7 @@ import java.net.ConnectException;
 import java.security.GeneralSecurityException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.crypto.SecretKey;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
@@ -45,9 +46,26 @@ public class SSLSocketClient {
 
     //read stream
     public String receiveMessage() throws IOException, ClassNotFoundException {
-        String msg = ois.readObject().toString();
+        String msg = (String) ois.readObject();
         return msg;
     }
+    public SecretKey receiveMessage2() {
+        try {
+            SecretKey s =  (SecretKey) ois.readObject();
+            return s;
+        } catch (IOException ex) {
+            Logger.getLogger(SSLSocketClient.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(SSLSocketClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+    
+    public void sendMessage2(SecretKey s) throws IOException {
+        oos.writeObject(s);
+        oos.flush();
+    }
+    
 
     public int getPort() {
         return port;

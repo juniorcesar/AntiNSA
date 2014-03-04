@@ -92,12 +92,6 @@ public class GoogleDriveOAuth {
         return credential;
     }
 
-//    public static boolean isAuthorized() {
-//        if (credential != null) {
-//            return true;
-//        }
-//        return false;
-//    }
     public static Userinfo userInfo() throws IOException, GeneralSecurityException {
         oauth2 = getOauth2();
         return oauth2.userinfo().get().execute();

@@ -11,6 +11,7 @@ import br.edu.utfpr.cm.antinsa.util.Util;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -32,7 +33,6 @@ public class NewClass {
 
     public static void main(String[] args) {
         try {
-//            
              SSLSocketClient client = new SSLSocketClient();
                             //                            JOptionPane.showMessageDialog(this, "Wait ... Establishing communication with the server!", "INFORMATION", JOptionPane.INFORMATION_MESSAGE);
                             client.connect("192.168.0.101");

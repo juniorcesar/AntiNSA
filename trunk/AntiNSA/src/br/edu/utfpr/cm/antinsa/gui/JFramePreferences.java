@@ -341,19 +341,21 @@ public class JFramePreferences extends javax.swing.JFrame {
                 jButtonDeleteAccount.setEnabled(true);
                 JOptionPane.showMessageDialog(this, "Authorization performed successfully!", "Sucessful", JOptionPane.INFORMATION_MESSAGE);
                 getKey();
-                if (driveController == null) {
-                    driveController = new GoogleDriveController();
+                if (Boolean.valueOf(Config.readXMLConfig("enable-google-drive").getText()) == true) {
+                    if (driveController == null) {
+                        driveController = new GoogleDriveController();
+                    }
+                    driveController.start();
+                    setAccountInfo();
                 }
-                driveController.start();
-                setAccountInfo();
             } catch (IOException ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "WARNING", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
                 ex.printStackTrace();
             } catch (GeneralSecurityException ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "WARNING", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
                 ex.printStackTrace();
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "WARNING", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
                 ex.printStackTrace();
             }
         } else {
@@ -398,6 +400,7 @@ public class JFramePreferences extends javax.swing.JFrame {
         Config.readXMLConfig("google-email").setText("");
         Config.saveXMLConfig();
         Config.deleteDir(GDUtils.STORE_CONFIG_GOOGLE_DRIVE);
+        GDUtils.SECRET_KEY.delete();
         getConfigGoogleDriveAccount();
     }
     //    /**
@@ -502,7 +505,7 @@ public class JFramePreferences extends javax.swing.JFrame {
     }
 
     private void saveKey() {
-        JDialogSaveKey1 saveKey = new JDialogSaveKey1(this, true);
+        JDialogSaveKey saveKey = new JDialogSaveKey(this, true);
         saveKey.setLocationRelativeTo(null);
         saveKey.setVisible(true);
     }
@@ -511,6 +514,9 @@ public class JFramePreferences extends javax.swing.JFrame {
         JDialogReceiveKey receiveKey = new JDialogReceiveKey(this, true);
         receiveKey.setLocationRelativeTo(null);
         receiveKey.setVisible(true);
-        getConfigGoogleDriveAccount();
+        if (!GDUtils.SECRET_KEY.exists()) {
+            deleteGoogleAccount();
+            JOptionPane.showMessageDialog(this, "Unable to get key!\n Your account has not been configured!", "Warning", JOptionPane.WARNING_MESSAGE);
+        }
     }
 }

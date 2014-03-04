@@ -13,6 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.security.GeneralSecurityException;
+import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
@@ -36,7 +37,7 @@ public class JDialogReceiveKey extends javax.swing.JDialog {
         socketClient = new SSLSocketClient();
         jTextFieldPort.setText(String.valueOf(socketClient.getPort()));
         jLabelLocation.setEnabled(jRadioButtonLocal.isSelected());
-        jTextFieldDirectory.setEnabled(jRadioButtonLocal.isSelected());
+        jTextFieldFile.setEnabled(jRadioButtonLocal.isSelected());
         jButtonSelect.setEnabled(jRadioButtonLocal.isSelected());
     }
 
@@ -49,6 +50,7 @@ public class JDialogReceiveKey extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        buttonGroup1 = new javax.swing.ButtonGroup();
         jPanel1 = new javax.swing.JPanel();
         jRadioButtonSmartphone = new javax.swing.JRadioButton();
         jRadioButtonLocal = new javax.swing.JRadioButton();
@@ -56,7 +58,7 @@ public class JDialogReceiveKey extends javax.swing.JDialog {
         jSeparator1 = new javax.swing.JSeparator();
         jSeparator2 = new javax.swing.JSeparator();
         jLabelLocation = new javax.swing.JLabel();
-        jTextFieldDirectory = new javax.swing.JTextField();
+        jTextFieldFile = new javax.swing.JTextField();
         jButtonSelect = new javax.swing.JButton();
         jLabelIP = new javax.swing.JLabel();
         jTextFieldPort = new javax.swing.JTextField();
@@ -73,6 +75,7 @@ public class JDialogReceiveKey extends javax.swing.JDialog {
 
         jPanel1.setToolTipText("Save key");
 
+        buttonGroup1.add(jRadioButtonSmartphone);
         jRadioButtonSmartphone.setSelected(true);
         jRadioButtonSmartphone.setText("Smartphone");
         jRadioButtonSmartphone.addChangeListener(new javax.swing.event.ChangeListener() {
@@ -81,6 +84,7 @@ public class JDialogReceiveKey extends javax.swing.JDialog {
             }
         });
 
+        buttonGroup1.add(jRadioButtonLocal);
         jRadioButtonLocal.setText("Local directory");
         jRadioButtonLocal.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
@@ -92,7 +96,7 @@ public class JDialogReceiveKey extends javax.swing.JDialog {
 
         jLabelLocation.setText("Location:");
 
-        jTextFieldDirectory.setPreferredSize(new java.awt.Dimension(10, 30));
+        jTextFieldFile.setPreferredSize(new java.awt.Dimension(10, 30));
 
         jButtonSelect.setText("Select");
         jButtonSelect.setPreferredSize(new java.awt.Dimension(94, 33));
@@ -115,7 +119,7 @@ public class JDialogReceiveKey extends javax.swing.JDialog {
 
         jTextFieldKeyName.setPreferredSize(new java.awt.Dimension(84, 30));
 
-        jButton1.setText("Cancel");
+        jButton1.setText("Close");
         jButton1.setPreferredSize(new java.awt.Dimension(97, 33));
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -161,7 +165,7 @@ public class JDialogReceiveKey extends javax.swing.JDialog {
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jTextFieldKeyName, javax.swing.GroupLayout.PREFERRED_SIZE, 445, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jTextFieldDirectory, javax.swing.GroupLayout.PREFERRED_SIZE, 339, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jTextFieldFile, javax.swing.GroupLayout.PREFERRED_SIZE, 339, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(jButtonSelect, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(jPanel1Layout.createSequentialGroup()
@@ -203,7 +207,7 @@ public class JDialogReceiveKey extends javax.swing.JDialog {
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 6, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextFieldDirectory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTextFieldFile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButtonSelect, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabelLocation))
                 .addGap(31, 31, 31)
@@ -256,12 +260,14 @@ public class JDialogReceiveKey extends javax.swing.JDialog {
 
     private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
         if (jRadioButtonLocal.isSelected()) {
-            String path = jTextFieldDirectory.getText();
+            String path = jTextFieldFile.getText();
 
             if ((path != null && !"".equals(path)) && !"/".equals(path)) {
-                boolean copyKey = copyKey(new File(path + "/" + GDUtils.SECRET_KEY.getName()));
-                if (copyKey) {
-                    JOptionPane.showMessageDialog(this, "The key was save with successfully!", "Sucessful", JOptionPane.INFORMATION_MESSAGE);
+                if (KeyManager.isValidKey(path)) {
+                    boolean copyKey = copyKey(new File(path));
+                    if (copyKey) {
+                        JOptionPane.showMessageDialog(this, "The key was save with successfully!", "Sucessful", JOptionPane.INFORMATION_MESSAGE);
+                    }
                 }
             } else {
                 JOptionPane.showMessageDialog(this, "You need to select the location!", "WARNING", JOptionPane.WARNING_MESSAGE);
@@ -282,45 +288,41 @@ public class JDialogReceiveKey extends javax.swing.JDialog {
                         client.sendMessage("");
                         String receiveMessage = client.receiveMessage();
                         if (!"0".equals(receiveMessage) && !"".equals(receiveMessage)) {
-                            JOptionPane.showMessageDialog(this, "The key will be stored in config directory!", "INFORMATION", JOptionPane.INFORMATION_MESSAGE);
-                            KeyManager.storeSecretKeyFile(receiveMessage);
-                            JOptionPane.showMessageDialog(this, "The key was received with success", "INFORMATION", JOptionPane.INFORMATION_MESSAGE);
-                            jTextFieldKeyName.setText("");
+                            JOptionPane.showMessageDialog(this, "The key will be stored in config directory!", "Information", JOptionPane.INFORMATION_MESSAGE);
+                            try {
+                                KeyManager.storeSecretKeyFile(receiveMessage);
+                                JOptionPane.showMessageDialog(this, "The key was received with success", "Information", JOptionPane.INFORMATION_MESSAGE);
+                                jTextFieldKeyName.setText("");
+                            } catch (IOException ex) {
+                                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                            }
+
                         } else {
                             if ("0".equals(receiveMessage)) {
-                                JOptionPane.showMessageDialog(this, "Already exists a key with the name specified!", "INFORMATION", JOptionPane.INFORMATION_MESSAGE);
+                                JOptionPane.showMessageDialog(this, "There isn't exists a key with the name specified!", "Information", JOptionPane.INFORMATION_MESSAGE);
                             } else {
-                                JOptionPane.showMessageDialog(this, "Key not received", "ERROR!", JOptionPane.WARNING_MESSAGE);
+                                JOptionPane.showMessageDialog(this, "Key not received", "Error", JOptionPane.WARNING_MESSAGE);
                             }
                         }
                         client.close();
                     } else {
-                        JOptionPane.showMessageDialog(this, "The field key name must have more than 5 characters!", "INFORMATION", JOptionPane.INFORMATION_MESSAGE);
+                        JOptionPane.showMessageDialog(this, "The field key name must have more than 5 characters!", "Information", JOptionPane.INFORMATION_MESSAGE);
                     }
                 } else {
-                    JOptionPane.showMessageDialog(this, "You need to insert the IP Address!", "INFORMATION", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "You need to insert the IP Address!", "Information", JOptionPane.INFORMATION_MESSAGE);
                 }
 
             } catch (ConnectException ex) {
-                JOptionPane.showMessageDialog(this, "Unable to connect to the specified server!\n" + ex.getMessage(), "WARNING", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Unable to connect to the specified server!\n" + ex.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
             } catch (GeneralSecurityException ex) {
-                JOptionPane.showMessageDialog(this, "Unable to connect to the specified server!", "WARNING", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Unable to connect to the specified server!", "Warning", JOptionPane.WARNING_MESSAGE);
             } catch (FileNotFoundException ex) {
-                JOptionPane.showMessageDialog(this, "Key not found", "ERROR!", JOptionPane.WARNING_MESSAGE);
-            } catch (IOException ex) {
-                JOptionPane.showMessageDialog(this, "Unable to connect to the specified server!", "WARNING", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Key not found", "Warning!", JOptionPane.WARNING_MESSAGE);
             } catch (ClassNotFoundException ex) {
-                JOptionPane.showMessageDialog(this, "Unable to connect to the specified server!", "WARNING", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Unable to connect to the specified server!", "Warning", JOptionPane.WARNING_MESSAGE);
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Unable to connect to the specified server!", "WARNING", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Unable to connect to the specified server!", "Warning", JOptionPane.WARNING_MESSAGE);
             }
-            //                try {
-            //                    if (client.isClosed()) {
-            //                        client.close();
-            //                    }
-            //                } catch (IOException ex) {
-            //                    ex.printStackTrace();
-            //                }
         }
 
     }//GEN-LAST:event_jToggleButton1ActionPerformed
@@ -336,25 +338,26 @@ public class JDialogReceiveKey extends javax.swing.JDialog {
 
     private void jRadioButtonLocalStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jRadioButtonLocalStateChanged
         jLabelLocation.setEnabled(jRadioButtonLocal.isSelected());
-        jTextFieldDirectory.setEnabled(jRadioButtonLocal.isSelected());
+        jTextFieldFile.setEnabled(jRadioButtonLocal.isSelected());
         jButtonSelect.setEnabled(jRadioButtonLocal.isSelected());
     }//GEN-LAST:event_jRadioButtonLocalStateChanged
 
     private void jButtonSelectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSelectActionPerformed
-        JFileChooser folder = new JFileChooser();
-        folder.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        int i = folder.showSaveDialog(null);
+        JFileChooser file = new JFileChooser();
+        file.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        int i = file.showSaveDialog(null);
         if (i == 1) {
-            jTextFieldDirectory.setText("");
+            jTextFieldFile.setText("");
         } else {
-            String path = folder.getSelectedFile().getAbsolutePath();
-            jTextFieldDirectory.setText(path);
+            String path = file.getSelectedFile().getAbsolutePath();
+            jTextFieldFile.setText(path);
         }
     }//GEN-LAST:event_jButtonSelectActionPerformed
     /**
      * @param args the command line arguments
      */
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButtonSelect;
     private javax.swing.JLabel jLabel1;
@@ -369,7 +372,7 @@ public class JDialogReceiveKey extends javax.swing.JDialog {
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JSeparator jSeparator4;
-    private javax.swing.JTextField jTextFieldDirectory;
+    private javax.swing.JTextField jTextFieldFile;
     private javax.swing.JTextField jTextFieldIP;
     private javax.swing.JTextField jTextFieldKeyName;
     private javax.swing.JTextField jTextFieldPort;
@@ -378,20 +381,14 @@ public class JDialogReceiveKey extends javax.swing.JDialog {
 
     public boolean copyKey(File newfile) {
         try {
-            KeyManager.storeKey(newfile);
+            Util.copyFile(newfile, GDUtils.SECRET_KEY);
             return true;
         } catch (FileNotFoundException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
-        } catch (KeyStoreException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
-        } catch (NoSuchAlgorithmException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
-        } catch (CertificateException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
         return false;
     }

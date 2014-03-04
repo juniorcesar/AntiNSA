@@ -9,17 +9,19 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
+import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Level;
@@ -136,4 +138,53 @@ public class Util {
         fos.write(content.getBytes());
         fos.close();
     }
+
+    public static ObjectInputStream convertStringToStream(String str) throws IOException {
+        ObjectInputStream c = new ObjectInputStream(new ByteArrayInputStream(str.getBytes()));
+        return c;
+    }
+    
+    public static byte[] ObjecttoBytes(Object object) {
+        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+        try {
+            java.io.ObjectOutputStream oos = new java.io.ObjectOutputStream(baos);
+            oos.writeObject(object);
+        } catch (java.io.IOException ioe) {
+            ioe.printStackTrace();
+        }
+        System.out.println(baos.toString());
+        return baos.toByteArray();
+    }
+
+    public static Object bytesToObject(byte[] bytes) {
+        Object object = null;
+        try {
+            object = new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(bytes)).readObject();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } catch (java.lang.ClassNotFoundException ex) {
+            ex.printStackTrace();
+        }
+        return object;
+    }
+    
+    public static void copyFile(File source, File destination) throws IOException {  
+     if (destination.exists())  
+         destination.delete();  
+  
+     FileChannel sourceChannel = null;  
+     FileChannel destinationChannel = null;  
+  
+     try {  
+         sourceChannel = new FileInputStream(source).getChannel();  
+         destinationChannel = new FileOutputStream(destination).getChannel();  
+         sourceChannel.transferTo(0, sourceChannel.size(),  
+                 destinationChannel);  
+     } finally {  
+         if (sourceChannel != null && sourceChannel.isOpen())  
+             sourceChannel.close();  
+         if (destinationChannel != null && destinationChannel.isOpen())  
+             destinationChannel.close();  
+    }  
+}  
 }

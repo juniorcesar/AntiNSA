@@ -24,14 +24,14 @@ import javax.swing.JOptionPane;
  *
  * @author junior
  */
-public class JDialogSaveKey1 extends javax.swing.JDialog {
+public class JDialogSaveKey extends javax.swing.JDialog {
 
     private SSLSocketClient socketClient;
 
     /**
-     * Creates new form JDialogSaveKey1
+     * Creates new form JDialogSaveKey
      */
-    public JDialogSaveKey1(java.awt.Frame parent, boolean modal) {
+    public JDialogSaveKey(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
         socketClient = new SSLSocketClient();
@@ -50,6 +50,7 @@ public class JDialogSaveKey1 extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        buttonGroup1 = new javax.swing.ButtonGroup();
         jPanel1 = new javax.swing.JPanel();
         jRadioButtonSmartphone = new javax.swing.JRadioButton();
         jRadioButtonLocal = new javax.swing.JRadioButton();
@@ -74,6 +75,7 @@ public class JDialogSaveKey1 extends javax.swing.JDialog {
 
         jPanel1.setToolTipText("Save key");
 
+        buttonGroup1.add(jRadioButtonSmartphone);
         jRadioButtonSmartphone.setSelected(true);
         jRadioButtonSmartphone.setText("Smartphone");
         jRadioButtonSmartphone.addChangeListener(new javax.swing.event.ChangeListener() {
@@ -82,6 +84,7 @@ public class JDialogSaveKey1 extends javax.swing.JDialog {
             }
         });
 
+        buttonGroup1.add(jRadioButtonLocal);
         jRadioButtonLocal.setText("Local directory");
         jRadioButtonLocal.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
@@ -297,7 +300,7 @@ public class JDialogSaveKey1 extends javax.swing.JDialog {
                         JOptionPane.showMessageDialog(this, "The key was save with successfully!", "Sucessful", JOptionPane.INFORMATION_MESSAGE);
                     }
                 } else {
-                    JOptionPane.showMessageDialog(this, "You need to select the location!", "WARNING", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "You need to select the location!", "Warning", JOptionPane.WARNING_MESSAGE);
                 }
             } else {
 
@@ -312,35 +315,39 @@ public class JDialogSaveKey1 extends javax.swing.JDialog {
                             //                            String receiveMessage = client.receiveMessage();
                             client.sendMessage(jTextFieldKeyName.getText());
                             //                            receiveMessage = client.receiveMessage();
-                            String key = Util.convertInputStreamtoString(new FileInputStream(KeyManager.generateSecretKeyFile()));
+                            String key = KeyManager.generateSecretKeyFile();
                             client.sendMessage(key);
                             String receiveMessage = client.receiveMessage();
-                            if (!"".equals(receiveMessage)) {
-                                JOptionPane.showMessageDialog(this, receiveMessage, "INFORMATION", JOptionPane.INFORMATION_MESSAGE);
+                            if (!"0".equals(receiveMessage) && !"".equals(receiveMessage)) {
+                                JOptionPane.showMessageDialog(this, receiveMessage, "Information", JOptionPane.INFORMATION_MESSAGE);
                                 jTextFieldKeyName.setText("");
                             } else {
-                                JOptionPane.showMessageDialog(this, "Key not sent", "ERROR!", JOptionPane.WARNING_MESSAGE);
+                                if ("0".equals(receiveMessage)) {
+                                      JOptionPane.showMessageDialog(this, "Already exists a key with the name specified!", "Information", JOptionPane.INFORMATION_MESSAGE);
+                                } else {
+                                    JOptionPane.showMessageDialog(this, "Key not sent", "Warning", JOptionPane.WARNING_MESSAGE);
+                                }
                             }
                             client.close();
                         } else {
-                            JOptionPane.showMessageDialog(this, "The field key name must have more than 5 characters!", "INFORMATION", JOptionPane.INFORMATION_MESSAGE);
+                            JOptionPane.showMessageDialog(this, "The field key name must have more than 5 characters!", "Information", JOptionPane.INFORMATION_MESSAGE);
                         }
                     } else {
-                        JOptionPane.showMessageDialog(this, "You need to insert the IP Address!", "INFORMATION", JOptionPane.INFORMATION_MESSAGE);
+                        JOptionPane.showMessageDialog(this, "You need to insert the IP Address!", "Information", JOptionPane.INFORMATION_MESSAGE);
                     }
 
                 } catch (ConnectException ex) {
-                    JOptionPane.showMessageDialog(this, "Unable to connect to the specified server!\n" + ex.getMessage(), "WARNING", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Unable to connect to the specified server!\n" + ex.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
                 } catch (GeneralSecurityException ex) {
-                    JOptionPane.showMessageDialog(this, "Unable to connect to the specified server!", "WARNING", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Unable to connect to the specified server!", "Warning", JOptionPane.WARNING_MESSAGE);
                 } catch (FileNotFoundException ex) {
-                    JOptionPane.showMessageDialog(this, "Key not found", "ERROR!", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Key not found", "Warning!", JOptionPane.WARNING_MESSAGE);
                 } catch (IOException ex) {
-                    JOptionPane.showMessageDialog(this, "Unable to connect to the specified server!", "WARNING", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Unable to connect to the specified server!", "Warning", JOptionPane.WARNING_MESSAGE);
                 } catch (ClassNotFoundException ex) {
-                    JOptionPane.showMessageDialog(this, "Unable to connect to the specified server!", "WARNING", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Unable to connect to the specified server!", "Warning", JOptionPane.WARNING_MESSAGE);
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(this, "Unable to connect to the specified server!", "WARNING", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Unable to connect to the specified server!", "Warning", JOptionPane.WARNING_MESSAGE);
                 }
                 //                try {
                 //                    if (client.isClosed()) {
@@ -351,13 +358,14 @@ public class JDialogSaveKey1 extends javax.swing.JDialog {
                 //                }
             }
         } else {
-            JOptionPane.showMessageDialog(this, "Key not found", "WARNING", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Key not found", "Warning", JOptionPane.WARNING_MESSAGE);
         }
     }//GEN-LAST:event_jToggleButton1ActionPerformed
     /**
      * @param args the command line arguments
      */
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButtonSelect;
     private javax.swing.JLabel jLabel1;
@@ -384,17 +392,17 @@ public class JDialogSaveKey1 extends javax.swing.JDialog {
             KeyManager.storeKey(newfile);
             return true;
         } catch (FileNotFoundException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         } catch (KeyStoreException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         } catch (NoSuchAlgorithmException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         } catch (CertificateException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
         return false;
     }

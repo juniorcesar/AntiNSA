@@ -7,7 +7,9 @@ package br.edu.utfpr.cm.antinsa.security;
 import br.edu.utfpr.cm.antinsa.configuration.Config;
 import br.edu.utfpr.cm.antinsa.configuration.GDUtils;
 import br.edu.utfpr.cm.antinsa.util.Util;
+import java.beans.Encoder;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -22,10 +24,14 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
 
 /**
  *
@@ -34,12 +40,23 @@ import javax.crypto.SecretKey;
 public class KeyManager {
 
     public static SecretKey loadKey() throws Exception {
-//        KeyGenerator keygen = KeyGenerator.getInstance("AES");
-//        SecretKey key = (SecretKey) keygen.generateKey();
         KeyStore ks = KeyStore.getInstance("JCEKS");
         ks.load(new FileInputStream(GDUtils.SECRET_KEY), "keymanager".toCharArray());
         SecretKey key = (SecretKey) ks.getKey("antinsa", "keymanager".toCharArray());
         return key;
+    }
+
+    public static boolean isValidKey(String path) {
+        try {
+            KeyStore ks = KeyStore.getInstance("JCEKS");
+            ks.load(new FileInputStream(path), "keymanager".toCharArray());
+            SecretKey key = (SecretKey) ks.getKey("antinsa", "keymanager".toCharArray());
+            return true;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
+
     }
 
     public static void generateKey() throws NoSuchAlgorithmException, KeyStoreException, IOException, CertificateException, NoSuchPaddingException, InvalidKeyException {
@@ -74,27 +91,29 @@ public class KeyManager {
         KeyStore.SecretKeyEntry skEntry = new KeyStore.SecretKeyEntry(key);
         ks.setEntry("antinsa", skEntry,
                 new KeyStore.PasswordProtection("keymanager".toCharArray()));
-        FileOutputStream fos = new FileOutputStream(new File("/home/junior/antinsa.keystore"));
+        FileOutputStream fos = new FileOutputStream(Config.STORE_CONFIG + "/antinsa.keystore");
         ks.store(fos, "keymanager".toCharArray());
         fos.close();
     }
 
-    public static File generateSecretKeyFile() throws FileNotFoundException, IOException, Exception {
-        File secretKey = new File(Config.STORE_CONFIG + "/tempkey.txt");
-        FileOutputStream fos = new FileOutputStream(secretKey);
-        ObjectOutputStream oos = new ObjectOutputStream(fos);
+    public static String generateSecretKeyFile() throws FileNotFoundException, IOException, Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
         oos.writeObject(loadKey());
-        fos.close();
+        oos.flush();
         oos.close();
-        return secretKey;
+        baos.flush();
+        baos.close();
+        BASE64Encoder encoder = new BASE64Encoder();
+        return encoder.encodeBuffer(baos.toByteArray());
     }
 
     public static void storeSecretKeyFile(String content) throws FileNotFoundException, IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException, UnrecoverableKeyException, ClassNotFoundException {
-        Util.saveToFile(Config.STORE_CONFIG + "/tempkey.txt", content);
-        FileInputStream fis = new FileInputStream(Config.STORE_CONFIG + "/tempkey.txt");
-        ObjectInputStream ois = new ObjectInputStream(fis);
+        BASE64Decoder decoder = new BASE64Decoder();
+        ByteArrayInputStream bais = new ByteArrayInputStream(decoder.decodeBuffer(content));
+        ObjectInputStream ois = new ObjectInputStream(bais);
         storeKey((SecretKey) ois.readObject());
-        fis.close();
         ois.close();
+        bais.close();
     }
 }
