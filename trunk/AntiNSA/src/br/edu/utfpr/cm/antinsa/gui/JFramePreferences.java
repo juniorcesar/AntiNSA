@@ -471,8 +471,7 @@ public class JFramePreferences extends javax.swing.JFrame {
         if (JOptionPane.YES_OPTION == value) {
             try {
                 KeyManager.generateKey();
-                JOptionPane.showMessageDialog(this, "Your key was generated and saved in the  configuration directory of application!", "Successful", JOptionPane.INFORMATION_MESSAGE);
-                int value1 = JOptionPane.showConfirmDialog(this, "Is recommended that you save your key in a smartphone using the application KeyManager \n or to save in another local!"
+                int value1 = JOptionPane.showConfirmDialog(this, "Your key was generated and saved in the  configuration directory of application!\nIs recommended that you save your key in a smartphone using the application KeyManager \n or to save in another local!"
                         + "\nWould you like to save your key now?", "Information", JOptionPane.YES_NO_OPTION);
                 if (JOptionPane.YES_OPTION == value1) {
                     saveKey();
@@ -498,12 +497,20 @@ public class JFramePreferences extends javax.swing.JFrame {
                 ex.printStackTrace();
             }
         } else if (JOptionPane.NO_OPTION == value) {
+            receiveKey();
         }
     }
 
     private void saveKey() {
-        JFrameSaveKey saveKey = new JFrameSaveKey();
+        JDialogSaveKey1 saveKey = new JDialogSaveKey1(this, true);
         saveKey.setLocationRelativeTo(null);
         saveKey.setVisible(true);
+    }
+
+    private void receiveKey() {
+        JDialogReceiveKey receiveKey = new JDialogReceiveKey(this, true);
+        receiveKey.setLocationRelativeTo(null);
+        receiveKey.setVisible(true);
+        getConfigGoogleDriveAccount();
     }
 }

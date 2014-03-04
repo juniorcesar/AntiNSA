@@ -66,9 +66,6 @@ public class GoogleDriveController extends Thread {
     @Override
     public void run() {
         try {
-            if (!GDUtils.SECRET_KEY.exists()) {
-                KeyManager.generateKey();
-            }
             while (!isInterrupted()) {
                 if (Config.STORE_CONFIG.exists() && Util.verifyServiceConnection(GDUtils.URL_SERVICE)) {
                     try {
@@ -88,7 +85,7 @@ public class GoogleDriveController extends Thread {
                 }
             }
         } catch (Exception ex) {
-            Logger.getLogger(GoogleDriveController.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         }
 
     }

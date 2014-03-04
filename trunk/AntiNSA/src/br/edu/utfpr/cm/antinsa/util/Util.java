@@ -4,7 +4,17 @@
  */
 package br.edu.utfpr.cm.antinsa.util;
 
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -12,6 +22,11 @@ import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+import javax.swing.Timer;
 
 /**
  *
@@ -57,5 +72,68 @@ public class Util {
             return false;
         }
         return false;
+    }
+
+    public static String convertInputStreamtoString(InputStream is) {
+        BufferedReader br = null;
+        StringBuilder sb = new StringBuilder();
+        String line;
+        try {
+            br = new BufferedReader(new InputStreamReader(is));
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    public void saveToFile(FileInputStream fis, String path) {
+        try {
+            FileOutputStream out = new FileOutputStream(path);
+            int b;
+            while ((b = fis.read()) > -1) {
+                out.write(b);
+            }
+            fis.close();
+            out.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Util.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public static void createPane(Component comp, String msg) {
+        JOptionPane pane = new JOptionPane(msg);
+        final JDialog dialog = pane.createDialog(comp, "INFORMATION");
+
+
+        Timer timer = new Timer(4000,
+                new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                dialog.dispose();
+            }
+        });
+
+        timer.setRepeats(false);
+        timer.start();
+        dialog.show();
+        timer.stop();
+        dialog.show(false);
+    }
+
+    public static void saveToFile(String path, String content) throws IOException {
+        FileOutputStream fos = new FileOutputStream(path);
+        fos.write(content.getBytes());
+        fos.close();
     }
 }

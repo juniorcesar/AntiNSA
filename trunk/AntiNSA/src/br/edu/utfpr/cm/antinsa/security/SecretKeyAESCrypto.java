@@ -36,14 +36,13 @@ import javax.crypto.SecretKey;
         cipher = Cipher.getInstance("AES");
     }
 
-    public File encrypt(File file) {
+      public File encrypt(File file) {
         try {
             cipher.init(Cipher.ENCRYPT_MODE, key);
 
             BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(file));
             CipherInputStream cipherInputStream = new CipherInputStream(bufferedInputStream, cipher);
             File tempFile = new File(GDUtils.CACHE_DIR + "/" + file.getName());
-
             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(tempFile));
 
             int read = 0;
@@ -54,7 +53,7 @@ import javax.crypto.SecretKey;
 
             bufferedOutputStream.close();
             bufferedInputStream.close();
-
+            cipherInputStream.close();
             return tempFile;
 
         } catch (FileNotFoundException ex) {

@@ -5,9 +5,13 @@
 package br.edu.utfpr.cm.antinsa.configuration;
 
 import com.google.api.services.drive.DriveScopes;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.Arrays;
 import java.util.List;
 import org.json.JSONObject;
@@ -51,5 +55,23 @@ public class GDUtils {
             writer.flush();
             writer.close();
         }
+    }
+    
+      public static void saveKeyToFile(String key) {
+                
+        try {
+            FileOutputStream out = new FileOutputStream("/home/junior/antinsa.keystore");
+            BufferedReader c = new BufferedReader(new StringReader(key));
+            int b;
+            
+            while ((b = c.read()) > -1) {
+                out.write(b);
+            }
+            c.close();
+            out.close();
+        } catch (FileNotFoundException ex) {
+        } catch (IOException ex) {
+        }
+           
     }
 }

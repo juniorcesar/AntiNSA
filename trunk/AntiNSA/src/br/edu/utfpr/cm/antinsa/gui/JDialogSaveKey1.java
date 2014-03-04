@@ -5,30 +5,40 @@
 package br.edu.utfpr.cm.antinsa.gui;
 
 import br.edu.utfpr.cm.antinsa.configuration.GDUtils;
+import br.edu.utfpr.cm.antinsa.security.KeyManager;
+import br.edu.utfpr.cm.antinsa.security.SSLSocketClient;
+import br.edu.utfpr.cm.antinsa.util.Util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.net.ConnectException;
+import java.security.GeneralSecurityException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileFilter;
 
 /**
  *
  * @author junior
  */
-public class JFrameSaveKey extends javax.swing.JFrame {
+public class JDialogSaveKey1 extends javax.swing.JDialog {
+
+    private SSLSocketClient socketClient;
 
     /**
-     * Creates new form JFrameSaveKey
+     * Creates new form JDialogSaveKey1
      */
-    public JFrameSaveKey() {
+    public JDialogSaveKey1(java.awt.Frame parent, boolean modal) {
+        super(parent, modal);
         initComponents();
+        socketClient = new SSLSocketClient();
+        jTextFieldPort.setText(String.valueOf(socketClient.getPort()));
+        jLabelLocation.setEnabled(jRadioButtonLocal.isSelected());
+        jTextFieldDirectory.setEnabled(jRadioButtonLocal.isSelected());
+        jButtonSelect.setEnabled(jRadioButtonLocal.isSelected());
     }
 
     /**
@@ -40,13 +50,10 @@ public class JFrameSaveKey extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        buttonGroup1 = new javax.swing.ButtonGroup();
         jPanel1 = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
         jRadioButtonSmartphone = new javax.swing.JRadioButton();
         jRadioButtonLocal = new javax.swing.JRadioButton();
         jLabel1 = new javax.swing.JLabel();
-        jToggleButton1 = new javax.swing.JToggleButton();
         jSeparator1 = new javax.swing.JSeparator();
         jSeparator2 = new javax.swing.JSeparator();
         jLabelLocation = new javax.swing.JLabel();
@@ -60,21 +67,13 @@ public class JFrameSaveKey extends javax.swing.JFrame {
         jTextFieldKeyName = new javax.swing.JTextField();
         jSeparator3 = new javax.swing.JSeparator();
         jSeparator4 = new javax.swing.JSeparator();
+        jButton1 = new javax.swing.JButton();
+        jToggleButton1 = new javax.swing.JToggleButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Save Key");
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jPanel1.setToolTipText("Save key");
 
-        jButton1.setText("Close");
-        jButton1.setPreferredSize(new java.awt.Dimension(97, 33));
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
-
-        buttonGroup1.add(jRadioButtonSmartphone);
         jRadioButtonSmartphone.setSelected(true);
         jRadioButtonSmartphone.setText("Smartphone");
         jRadioButtonSmartphone.addChangeListener(new javax.swing.event.ChangeListener() {
@@ -83,7 +82,6 @@ public class JFrameSaveKey extends javax.swing.JFrame {
             }
         });
 
-        buttonGroup1.add(jRadioButtonLocal);
         jRadioButtonLocal.setText("Local directory");
         jRadioButtonLocal.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
@@ -92,14 +90,6 @@ public class JFrameSaveKey extends javax.swing.JFrame {
         });
 
         jLabel1.setText("Select the local that you want to save the key:");
-
-        jToggleButton1.setText("Save");
-        jToggleButton1.setPreferredSize(new java.awt.Dimension(97, 33));
-        jToggleButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jToggleButton1ActionPerformed(evt);
-            }
-        });
 
         jLabelLocation.setText("Location:");
 
@@ -115,30 +105,16 @@ public class JFrameSaveKey extends javax.swing.JFrame {
 
         jLabelIP.setText("IP Address:");
 
+        jTextFieldPort.setEditable(false);
         jTextFieldPort.setPreferredSize(new java.awt.Dimension(84, 30));
-        jTextFieldPort.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextFieldPortActionPerformed(evt);
-            }
-        });
 
         jLabelPort.setText("Port:");
 
         jTextFieldIP.setPreferredSize(new java.awt.Dimension(84, 30));
-        jTextFieldIP.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextFieldIPActionPerformed(evt);
-            }
-        });
 
         jLabelKeyName.setText("Key name:");
 
         jTextFieldKeyName.setPreferredSize(new java.awt.Dimension(84, 30));
-        jTextFieldKeyName.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextFieldKeyNameActionPerformed(evt);
-            }
-        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -149,11 +125,6 @@ public class JFrameSaveKey extends javax.swing.JFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jSeparator3))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(374, 374, 374)
-                        .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jToggleButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
@@ -171,7 +142,7 @@ public class JFrameSaveKey extends javax.swing.JFrame {
                             .addComponent(jLabelIP)
                             .addComponent(jLabelLocation)
                             .addComponent(jLabelKeyName))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jTextFieldKeyName, javax.swing.GroupLayout.PREFERRED_SIZE, 445, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jPanel1Layout.createSequentialGroup()
@@ -226,11 +197,7 @@ public class JFrameSaveKey extends javax.swing.JFrame {
                     .addComponent(jTextFieldKeyName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jSeparator4, javax.swing.GroupLayout.PREFERRED_SIZE, 12, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jToggleButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+                .addContainerGap(52, Short.MAX_VALUE))
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel1Layout.createSequentialGroup()
                     .addGap(150, 150, 150)
@@ -238,63 +205,55 @@ public class JFrameSaveKey extends javax.swing.JFrame {
                     .addContainerGap(183, Short.MAX_VALUE)))
         );
 
+        jButton1.setText("Close");
+        jButton1.setPreferredSize(new java.awt.Dimension(97, 33));
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jToggleButton1.setText("Save");
+        jToggleButton1.setPreferredSize(new java.awt.Dimension(97, 33));
+        jToggleButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 616, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap(353, Short.MAX_VALUE)
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jToggleButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(27, 27, 27))
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                    .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createSequentialGroup()
+                    .addGap(0, 0, Short.MAX_VALUE)
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGap(0, 0, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 351, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(311, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jToggleButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(layout.createSequentialGroup()
+                    .addGap(0, 9, Short.MAX_VALUE)
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGap(0, 12, Short.MAX_VALUE)))
+                    .addGap(0, 9, Short.MAX_VALUE)))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-//        System.exit(1);
-    }//GEN-LAST:event_jButton1ActionPerformed
-
-    private void jTextFieldPortActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldPortActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextFieldPortActionPerformed
-
-    private void jTextFieldIPActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldIPActionPerformed
-        // TODO add your handling code here:
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextFieldIPActionPerformed
-
-    private void jTextFieldKeyNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldKeyNameActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextFieldKeyNameActionPerformed
-
-    private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
-        if (GDUtils.SECRET_KEY.exists()) {
-            if (jRadioButtonLocal.isSelected()) {
-                String path = jTextFieldDirectory.getText();
-
-                if ((path != null && !"".equals(path)) && !"/".equals(path)) {
-                    copyKey(new File(path + "/" + GDUtils.SECRET_KEY.getName()));
-                    JOptionPane.showMessageDialog(this, "The key was save with successfully!", "Sucessful", JOptionPane.INFORMATION_MESSAGE);
-                } else {
-                    JOptionPane.showMessageDialog(this, "You need to select the location!", "WARNING", JOptionPane.WARNING_MESSAGE);
-                }
-            } else {
-            }
-        } else {
-            JOptionPane.showMessageDialog(this, "Key not found", "WARNING", JOptionPane.WARNING_MESSAGE);
-        }
-    }//GEN-LAST:event_jToggleButton1ActionPerformed
 
     private void jRadioButtonSmartphoneStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jRadioButtonSmartphoneStateChanged
         jLabelIP.setEnabled(jRadioButtonSmartphone.isSelected());
@@ -322,8 +281,83 @@ public class JFrameSaveKey extends javax.swing.JFrame {
             jTextFieldDirectory.setText(path);
         }
     }//GEN-LAST:event_jButtonSelectActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        setVisible(false);
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
+        if (GDUtils.SECRET_KEY.exists()) {
+            if (jRadioButtonLocal.isSelected()) {
+                String path = jTextFieldDirectory.getText();
+
+                if ((path != null && !"".equals(path)) && !"/".equals(path)) {
+                    boolean copyKey = copyKey(new File(path + "/" + GDUtils.SECRET_KEY.getName()));
+                    if (copyKey) {
+                        JOptionPane.showMessageDialog(this, "The key was save with successfully!", "Sucessful", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, "You need to select the location!", "WARNING", JOptionPane.WARNING_MESSAGE);
+                }
+            } else {
+
+                try {
+                    if (!"".equals(jTextFieldIP.getText())) {
+                        if (jTextFieldKeyName.getText().length() > 5) {
+                            SSLSocketClient client = new SSLSocketClient();
+                            Util.createPane(this, "Wait ... Establishing communication with the server!");
+                            //                            JOptionPane.showMessageDialog(this, "Wait ... Establishing communication with the server!", "INFORMATION", JOptionPane.INFORMATION_MESSAGE);
+                            client.connect(jTextFieldIP.getText());
+                            client.sendMessage("1");
+                            //                            String receiveMessage = client.receiveMessage();
+                            client.sendMessage(jTextFieldKeyName.getText());
+                            //                            receiveMessage = client.receiveMessage();
+                            String key = Util.convertInputStreamtoString(new FileInputStream(KeyManager.generateSecretKeyFile()));
+                            client.sendMessage(key);
+                            String receiveMessage = client.receiveMessage();
+                            if (!"".equals(receiveMessage)) {
+                                JOptionPane.showMessageDialog(this, receiveMessage, "INFORMATION", JOptionPane.INFORMATION_MESSAGE);
+                                jTextFieldKeyName.setText("");
+                            } else {
+                                JOptionPane.showMessageDialog(this, "Key not sent", "ERROR!", JOptionPane.WARNING_MESSAGE);
+                            }
+                            client.close();
+                        } else {
+                            JOptionPane.showMessageDialog(this, "The field key name must have more than 5 characters!", "INFORMATION", JOptionPane.INFORMATION_MESSAGE);
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(this, "You need to insert the IP Address!", "INFORMATION", JOptionPane.INFORMATION_MESSAGE);
+                    }
+
+                } catch (ConnectException ex) {
+                    JOptionPane.showMessageDialog(this, "Unable to connect to the specified server!\n" + ex.getMessage(), "WARNING", JOptionPane.WARNING_MESSAGE);
+                } catch (GeneralSecurityException ex) {
+                    JOptionPane.showMessageDialog(this, "Unable to connect to the specified server!", "WARNING", JOptionPane.WARNING_MESSAGE);
+                } catch (FileNotFoundException ex) {
+                    JOptionPane.showMessageDialog(this, "Key not found", "ERROR!", JOptionPane.WARNING_MESSAGE);
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(this, "Unable to connect to the specified server!", "WARNING", JOptionPane.WARNING_MESSAGE);
+                } catch (ClassNotFoundException ex) {
+                    JOptionPane.showMessageDialog(this, "Unable to connect to the specified server!", "WARNING", JOptionPane.WARNING_MESSAGE);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "Unable to connect to the specified server!", "WARNING", JOptionPane.WARNING_MESSAGE);
+                }
+                //                try {
+                //                    if (client.isClosed()) {
+                //                        client.close();
+                //                    }
+                //                } catch (IOException ex) {
+                //                    ex.printStackTrace();
+                //                }
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Key not found", "WARNING", JOptionPane.WARNING_MESSAGE);
+        }
+    }//GEN-LAST:event_jToggleButton1ActionPerformed
+    /**
+     * @param args the command line arguments
+     */
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButtonSelect;
     private javax.swing.JLabel jLabel1;
@@ -345,21 +379,23 @@ public class JFrameSaveKey extends javax.swing.JFrame {
     private javax.swing.JToggleButton jToggleButton1;
     // End of variables declaration//GEN-END:variables
 
-    public void copyKey(File newfile) {
-        FileInputStream input = null;
+    public boolean copyKey(File newfile) {
         try {
-            input = new FileInputStream(GDUtils.SECRET_KEY);
-            FileOutputStream out = new FileOutputStream(newfile);
-            int b;
-            while ((b = input.read()) > -1) {
-                out.write(b);
-            }
-            input.close();
-            out.close();
+            KeyManager.storeKey(newfile);
+            return true;
         } catch (FileNotFoundException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+        } catch (KeyStoreException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+        } catch (NoSuchAlgorithmException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+        } catch (CertificateException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
         }
+        return false;
     }
 }
