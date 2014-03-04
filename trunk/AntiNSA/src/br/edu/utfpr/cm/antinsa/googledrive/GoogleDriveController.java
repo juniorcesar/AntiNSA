@@ -49,7 +49,7 @@ public class GoogleDriveController extends Thread {
             daoDataFile = new DaoDataFile();
             dir = new java.io.File(Config.STORE_DEFAULT.getAbsolutePath());
             googleDrive = new GoogleDrive();
-            cipher = new SecretKeyAESCrypto();
+
         } catch (ClassNotFoundException ex) {
             ex.printStackTrace();
         } catch (SQLException ex) {
@@ -67,6 +67,10 @@ public class GoogleDriveController extends Thread {
     public void run() {
         try {
             while (!isInterrupted()) {
+                if (cipher == null && GDUtils.SECRET_KEY.exists()) {
+                    cipher = new SecretKeyAESCrypto();
+                }
+
                 if (Config.STORE_CONFIG.exists() && Util.verifyServiceConnection(GDUtils.URL_SERVICE)) {
                     try {
                         Config.STORE_DEFAULT.mkdirs();
@@ -91,41 +95,46 @@ public class GoogleDriveController extends Thread {
     }
 
     public void initServiceGoogleDrive() {
-        if (Config.readXMLConfig("enable-google-drive").getText().equals("true") && !GoogleDriveOAuth.isValidCredential()) {
-            try {
-                int value = JOptionPane.showConfirmDialog(null, "Your Google Drive account is enable, but isn't authorized! \n Would you like to open your browser to perform authorization?", "Information", JOptionPane.YES_NO_OPTION);
-                if (value == JOptionPane.YES_OPTION) {
-                    GoogleDriveOAuth.getCredential();
-                    JOptionPane.showMessageDialog(null, "Authentication performed successfully!", "Sucessful", JOptionPane.INFORMATION_MESSAGE);
-                    start();
-                } else {
-                    Config.readXMLConfig("enable-google-drive").setText("false");
-                    Config.saveXMLConfig();
+        try {
+            if (Config.readXMLConfig("enable-google-drive").getText().equals("true") && !GoogleDriveOAuth.isValidCredential()) {
+                try {
+                    int value = JOptionPane.showConfirmDialog(null, "Your Google Drive account is enable, but isn't authorized! \n Would you like to open your browser to perform authorization?", "Information", JOptionPane.YES_NO_OPTION);
+                    if (value == JOptionPane.YES_OPTION) {
+                        GoogleDriveOAuth.getCredential();
+                        JOptionPane.showMessageDialog(null, "Authentication performed successfully!", "Sucessful", JOptionPane.INFORMATION_MESSAGE);
+                        start();
+                    } else {
+                        Config.readXMLConfig("enable-google-drive").setText("false");
+                        Config.saveXMLConfig();
+                    }
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(null, ex.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
+                    ex.printStackTrace();
+                } catch (GeneralSecurityException ex) {
+                    JOptionPane.showMessageDialog(null, ex.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
+                    ex.printStackTrace();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(null, ex.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
+                    ex.printStackTrace();
                 }
-            } catch (IOException ex) {
-                JOptionPane.showMessageDialog(null, ex.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
-                ex.printStackTrace();
-            } catch (GeneralSecurityException ex) {
-                JOptionPane.showMessageDialog(null, ex.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
-                ex.printStackTrace();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(null, ex.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
-                ex.printStackTrace();
+            } else if (Config.readXMLConfig("enable-google-drive").getText().equals("true") && GoogleDriveOAuth.isValidCredential()) {
+                try {
+                    GoogleDriveOAuth.getCredential();
+                    start();
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(null, ex.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
+                    ex.printStackTrace();
+                } catch (GeneralSecurityException ex) {
+                    JOptionPane.showMessageDialog(null, ex.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
+                    ex.printStackTrace();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(null, ex.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
+                    ex.printStackTrace();
+                }
             }
-        } else if (Config.readXMLConfig("enable-google-drive").getText().equals("true") && GoogleDriveOAuth.isValidCredential()) {
-            try {
-                GoogleDriveOAuth.getCredential();
-                start();
-            } catch (IOException ex) {
-                JOptionPane.showMessageDialog(null, ex.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
-                ex.printStackTrace();
-            } catch (GeneralSecurityException ex) {
-                JOptionPane.showMessageDialog(null, ex.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
-                ex.printStackTrace();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(null, ex.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
-                ex.printStackTrace();
-            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
+            ex.printStackTrace();
         }
     }
 
@@ -146,18 +155,18 @@ public class GoogleDriveController extends Thread {
                 if (!isTempFile(file.getAbsolutePath()) && !Util.getMimeType(file.getAbsolutePath()).equals("inode/directory") && !isOpen(file.getAbsolutePath().replace(" ", "\\ "))) {
                     DataFile dataFile = daoDataFile.getDataFile(file.getName());
                     if (dataFile != null) {
-                            if (file.lastModified() > dataFile.getDate()) {
-                                
-                               // String hash = HashGenerator.hashFile(encryptedFile.getAbsolutePath());
-                                String hash = HashGenerator.hashFile(file.getAbsolutePath());
-                               if (!dataFile.getHash().equals(hash)) {
-                                    encryptedFile = cipher.encrypt(file);
-                                    File fileUpdated = googleDrive.updateFile(encryptedFile, file.lastModified());
-                                    if (fileUpdated != null) {
-                                        daoDataFile.update(file.getName(), file.lastModified(), HashGenerator.hashFile(file.getAbsolutePath()), fileUpdated.getMd5Checksum());
-                                    }
-                               }
+                        if (file.lastModified() > dataFile.getDate()) {
+
+                            // String hash = HashGenerator.hashFile(encryptedFile.getAbsolutePath());
+                            String hash = HashGenerator.hashFile(file.getAbsolutePath());
+                            if (!dataFile.getHash().equals(hash)) {
+                                encryptedFile = cipher.encrypt(file);
+                                File fileUpdated = googleDrive.updateFile(encryptedFile, file.lastModified());
+                                if (fileUpdated != null) {
+                                    daoDataFile.update(file.getName(), file.lastModified(), HashGenerator.hashFile(file.getAbsolutePath()), fileUpdated.getMd5Checksum());
+                                }
                             }
+                        }
                     } else {
                         encryptedFile = cipher.encrypt(file);
                         File fileCreated = googleDrive.createFile(encryptedFile, file.lastModified());
@@ -195,16 +204,16 @@ public class GoogleDriveController extends Thread {
             for (File file : cloudFiles) {
                 DataFile dataFile = daoDataFile.getDataFile(file.getTitle());
                 if (dataFile != null) {
-                        if (dataFile.getName().equals(file.getTitle()) && dataFile.getDate() < file.getModifiedByMeDate().getValue()) {
-                            if (!dataFile.getCloudHash().equals(file.getMd5Checksum())) {
-                                encryptedFile = googleDrive.saveFile(googleDrive.downloadFile(file.getDownloadUrl()), file.getTitle());
-                                if (encryptedFile != null) {
-                                    decryptedFile = cipher.decrypt(encryptedFile);
-                                    decryptedFile.setLastModified(file.getLastViewedByMeDate().getValue());
-                                    daoDataFile.update(decryptedFile.getName(), decryptedFile.lastModified(), HashGenerator.hashFile(decryptedFile.getAbsolutePath()), file.getMd5Checksum());
-                                    encryptedFile.delete();
-                                }
+                    if (dataFile.getName().equals(file.getTitle()) && dataFile.getDate() < file.getModifiedByMeDate().getValue()) {
+                        if (!dataFile.getCloudHash().equals(file.getMd5Checksum())) {
+                            encryptedFile = googleDrive.saveFile(googleDrive.downloadFile(file.getDownloadUrl()), file.getTitle());
+                            if (encryptedFile != null) {
+                                decryptedFile = cipher.decrypt(encryptedFile);
+                                decryptedFile.setLastModified(file.getLastViewedByMeDate().getValue());
+                                daoDataFile.update(decryptedFile.getName(), decryptedFile.lastModified(), HashGenerator.hashFile(decryptedFile.getAbsolutePath()), file.getMd5Checksum());
+                                encryptedFile.delete();
                             }
+                        }
                     }
                 } else {
                     if (file.getDownloadUrl() != null) {

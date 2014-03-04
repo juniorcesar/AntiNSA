@@ -31,7 +31,7 @@ public class Main {
             JFramePreferences main = new JFramePreferences();
             main.setLocationRelativeTo(null);
             main.setVisible(false);
-            while (!Util.verifyServiceConnection(GDUtils.URL_SERVICE)) {
+            while (Util.verifyServiceConnection(GDUtils.URL_SERVICE)) {
                 if (Boolean.valueOf(Config.readXMLConfig("enable-google-drive").getValue())) {
                     GoogleDriveController driveController = new GoogleDriveController();
                     driveController.initServiceGoogleDrive();
