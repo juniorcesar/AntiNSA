@@ -76,7 +76,7 @@ public class GoogleDriveController extends Thread {
                         cloudSync();
                         //Atualiza base de dados com arquivos locais
                         localSync();
-                        Thread.sleep(2000);
+                        Thread.sleep(500);
                     } catch (InterruptedException ex) {
                         ex.printStackTrace();
                     }

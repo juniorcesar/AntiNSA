@@ -60,7 +60,9 @@ public class GoogleDriveOAuth {
                 httpTransport, JSON_FACTORY, clientSecrets, GDUtils.SCOPES).setDataStoreFactory(
                 dataStoreFactory).build();
         credential = new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
-        saveAccountInfo();
+        if (Config.readXMLConfig("google-name").getText().equals("")) {
+            saveAccountInfo();
+        }
         flow.createAndStoreCredential(new TokenResponse().setAccessToken(credential.getAccessToken()), "1");
         return credential;
 
