@@ -5,12 +5,9 @@
 package br.edu.utfpr.cm.antinsa.googledrive;
 
 import br.edu.utfpr.cm.antinsa.configuration.GDUtils;
-import br.edu.utfpr.cm.antinsa.googledrive.GoogleDrive;
 import br.edu.utfpr.cm.antinsa.configuration.Config;
 import br.edu.utfpr.cm.antinsa.dao.DaoDataFile;
-import br.edu.utfpr.cm.antinsa.security.KeyManager;
 import br.edu.utfpr.cm.antinsa.security.SecretKeyAESCrypto;
-import br.edu.utfpr.cm.antinsa.googledrive.DataFile;
 import br.edu.utfpr.cm.antinsa.security.HashGenerator;
 import br.edu.utfpr.cm.antinsa.util.Util;
 import com.google.api.services.drive.model.File;
@@ -24,8 +21,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -67,11 +62,13 @@ public class GoogleDriveController extends Thread {
     public void run() {
         try {
             while (!isInterrupted()) {
-                if (cipher == null && GDUtils.SECRET_KEY.exists()) {
-                    cipher = new SecretKeyAESCrypto();
+                if (cipher == null) {
+                    if (GDUtils.SECRET_KEY.exists()) {
+                        cipher = new SecretKeyAESCrypto();
+                    }
                 }
 
-                if (Config.STORE_CONFIG.exists() && Util.verifyServiceConnection(GDUtils.URL_SERVICE)) {
+                if (Config.STORE_CONFIG.exists() && Util.verifyServiceConnection(GDUtils.URL_SERVICE) && GDUtils.SECRET_KEY.exists()) {
                     try {
                         Config.STORE_DEFAULT.mkdirs();
                         GDUtils.CACHE_DIR.mkdirs();
@@ -79,7 +76,7 @@ public class GoogleDriveController extends Thread {
                         cloudSync();
                         //Atualiza base de dados com arquivos locais
                         localSync();
-                        Thread.sleep(1000);
+                        Thread.sleep(2000);
                     } catch (InterruptedException ex) {
                         ex.printStackTrace();
                     }
@@ -171,7 +168,7 @@ public class GoogleDriveController extends Thread {
                         encryptedFile = cipher.encrypt(file);
                         File fileCreated = googleDrive.createFile(encryptedFile, file.lastModified());
                         if (fileCreated != null) {
-                            daoDataFile.insert(file.getName(), file.length(), HashGenerator.hashFile(file.getAbsolutePath()), fileCreated.getMd5Checksum());
+                            daoDataFile.insert(file.getName(), file.lastModified(), HashGenerator.hashFile(file.getAbsolutePath()), fileCreated.getMd5Checksum());
                         }
                     }
                 }

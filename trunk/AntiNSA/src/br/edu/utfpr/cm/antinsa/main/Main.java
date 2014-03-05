@@ -7,6 +7,7 @@ package br.edu.utfpr.cm.antinsa.main;
 import br.edu.utfpr.cm.antinsa.configuration.Config;
 import br.edu.utfpr.cm.antinsa.configuration.GDUtils;
 import br.edu.utfpr.cm.antinsa.googledrive.GoogleDriveController;
+import br.edu.utfpr.cm.antinsa.googledrive.GoogleDriveOAuth;
 import br.edu.utfpr.cm.antinsa.gui.JFramePreferences;
 import br.edu.utfpr.cm.antinsa.util.Util;
 import java.io.IOException;
@@ -31,32 +32,31 @@ public class Main {
             JFramePreferences main = new JFramePreferences();
             main.setLocationRelativeTo(null);
             main.setVisible(false);
-            while (Util.verifyServiceConnection(GDUtils.URL_SERVICE)) {
-                if (Boolean.valueOf(Config.readXMLConfig("enable-google-drive").getValue())) {
-                    GoogleDriveController driveController = new GoogleDriveController();
-                    driveController.initServiceGoogleDrive();
-                }
+            if (Boolean.valueOf(Config.readXMLConfig("enable-google-drive").getValue()) && GoogleDriveOAuth.isValidCredential() && GDUtils.SECRET_KEY.exists()) {
+                GoogleDriveController driveController = new GoogleDriveController();
+                driveController.initServiceGoogleDrive();
+
             }
         } catch (JDOMException ex) {
-            JOptionPane.showMessageDialog(null, ex.getMessage(), "WARNING", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
             ex.printStackTrace();
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(null, ex.getMessage(), "WARNING", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
             ex.printStackTrace();
         } catch (ClassNotFoundException ex) {
-            JOptionPane.showMessageDialog(null, ex.getMessage(), "WARNING", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
             ex.printStackTrace();
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "SQL Error:" + ex.getMessage(), "WARNING", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(null, "SQL Error:" + ex.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
             ex.printStackTrace();
         } catch (InstantiationException ex) {
-            JOptionPane.showMessageDialog(null, ex.getMessage(), "WARNING", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
             ex.printStackTrace();
         } catch (IllegalAccessException ex) {
-            JOptionPane.showMessageDialog(null, ex.getMessage(), "WARNING", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
             ex.printStackTrace();
         } catch (UnsupportedLookAndFeelException ex) {
-            JOptionPane.showMessageDialog(null, ex.getMessage(), "WARNING", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
             ex.printStackTrace();
         }
     }

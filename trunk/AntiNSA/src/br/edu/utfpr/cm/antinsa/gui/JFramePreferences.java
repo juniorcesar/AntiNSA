@@ -384,7 +384,6 @@ public class JFramePreferences extends javax.swing.JFrame {
 
     private void setConfigGoogleDriveAccount() {
         Config.readXMLConfig("enable-google-drive").setText(String.valueOf(jCheckBoxEnableGoogle.isSelected()));
-//        Config.readXMLConfig("enable-api-personal").setText(String.valueOf(jCheckBoxEnablePersonal.isSelected()));
         Config.saveXMLConfig();
     }
 

@@ -166,7 +166,7 @@ public class GoogleDrive {
 
     public File createFile(java.io.File file, long lastModified) {
         if (Util.verifyServiceConnection(GDUtils.URL_SERVICE)) {
-            if (!hasStorage(file.length())) {
+            if (hasStorage(file.length())) {
                 try {
                     String parentId = Config.readXMLConfig("folder-id").getText();
                     File body = new File();
@@ -183,7 +183,6 @@ public class GoogleDrive {
 
                     FileContent mediaContent = new FileContent(Util.getMimeType(file.getAbsolutePath()), fileContent);
                     File fileCloud = service.files().insert(body, mediaContent).execute();
-                    System.out.println("File created in Google Drive: " + fileCloud.getTitle());
                     return fileCloud;
 
                 } catch (IOException ex) {
@@ -204,7 +203,6 @@ public class GoogleDrive {
                 if (file != null) {
                     buildGoogleDriveService();
                     service.files().delete(file.getId()).execute();
-                    System.out.println("File deleted in Google Drive: " + fileName);
                     return true;
                 }
             } catch (IOException ex) {
@@ -218,7 +216,7 @@ public class GoogleDrive {
 
     public File updateFile(java.io.File file, long lastModified) {
         if (Util.verifyServiceConnection(GDUtils.URL_SERVICE)) {
-            if (!hasStorage(file.length())) {
+            if (hasStorage(file.length())) {
                 try {
                     File fileCloud = getFileId(file.getName());
                     if (fileCloud != null) {
@@ -264,7 +262,8 @@ public class GoogleDrive {
     private boolean hasStorage(long sizeFile) {
         try {
             About about = service.about().get().execute();
-            if (about.getQuotaBytesTotal() <= (about.getQuotaBytesUsed() + sizeFile)) {
+            Long used = (about.getQuotaBytesUsed() + sizeFile);
+            if (about.getQuotaBytesTotal() >= used) {
                 return true;
             }
         } catch (IOException ex) {
