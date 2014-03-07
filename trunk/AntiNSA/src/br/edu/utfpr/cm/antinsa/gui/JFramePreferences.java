@@ -334,12 +334,12 @@ public class JFramePreferences extends javax.swing.JFrame {
                 if (driveController != null) {
                     driveController.interrupt();
                 }
-                int value1 = JOptionPane.showConfirmDialog(this, "Would you like to remove directory AntiNSA?", "Information", JOptionPane.YES_NO_OPTION);
-                if (value == JOptionPane.YES_OPTION) {
-//                    if (Config.STORE_DEFAULT != null) {
-                        Config.STORE_DEFAULT.delete();
-//                    }
-                }
+//                int value1 = JOptionPane.showConfirmDialog(this, "Would you like to remove directory AntiNSA?", "Information", JOptionPane.YES_NO_OPTION);
+//                if (value == JOptionPane.YES_OPTION) {
+////                    if (Config.STORE_DEFAULT != null) {
+//                        Config.STORE_DEFAULT.delete();
+////                    }
+//                }
                 JOptionPane.showMessageDialog(null, "Your Google Drive account was deleted this computer with success!", "Sucessful", JOptionPane.INFORMATION_MESSAGE);
             }
         }
@@ -360,7 +360,7 @@ public class JFramePreferences extends javax.swing.JFrame {
                     if (driveController == null) {
                         driveController = new GoogleDriveController();
                     }
-                    driveController.start();
+                    driveController.initServiceGoogleDrive();
                     setAccountInfo();
                 }
             } catch (IOException ex) {
