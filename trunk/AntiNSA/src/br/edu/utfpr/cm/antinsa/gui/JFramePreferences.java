@@ -9,6 +9,7 @@ import br.edu.utfpr.cm.antinsa.googledrive.GoogleDriveOAuth;
 import br.edu.utfpr.cm.antinsa.configuration.Config;
 import br.edu.utfpr.cm.antinsa.googledrive.GoogleDriveController;
 import br.edu.utfpr.cm.antinsa.security.KeyManager;
+import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
@@ -313,7 +314,7 @@ public class JFramePreferences extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButtonCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCloseActionPerformed
-        setVisible(false);
+        this.setVisible(false);
     }//GEN-LAST:event_jButtonCloseActionPerformed
 
     private void jButtonCopyKeyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCopyKeyActionPerformed
@@ -328,8 +329,19 @@ public class JFramePreferences extends javax.swing.JFrame {
         // TODO add your handling code here:
         int value = JOptionPane.showConfirmDialog(this, "Would you like to delete your Google Drive account this computer?", "Information", JOptionPane.YES_NO_OPTION);
         if (value == JOptionPane.YES_OPTION) {
-            deleteGoogleAccount();
-            JOptionPane.showMessageDialog(null, "Your Google Drive account was deleted this computer with success!", "Sucessful", JOptionPane.INFORMATION_MESSAGE);
+            if (value == JOptionPane.YES_OPTION) {
+                deleteGoogleAccount();
+                if (driveController != null) {
+                    driveController.interrupt();
+                }
+                int value1 = JOptionPane.showConfirmDialog(this, "Would you like to remove directory AntiNSA?", "Information", JOptionPane.YES_NO_OPTION);
+                if (value == JOptionPane.YES_OPTION) {
+                    if (Config.STORE_DEFAULT != null) {
+                        Config.STORE_DEFAULT.delete();
+                    }
+                }
+                JOptionPane.showMessageDialog(null, "Your Google Drive account was deleted this computer with success!", "Sucessful", JOptionPane.INFORMATION_MESSAGE);
+            }
         }
     }//GEN-LAST:event_jButtonDeleteAccountActionPerformed
 
@@ -338,6 +350,9 @@ public class JFramePreferences extends javax.swing.JFrame {
             try {
                 JOptionPane.showMessageDialog(this, "Your browser will be to open to perform authorization!", "Information", JOptionPane.INFORMATION_MESSAGE);
                 GoogleDriveOAuth.authorize();
+                if (Config.STORE_DEFAULT != null) {
+                    Config.STORE_DEFAULT.mkdirs();
+                }
                 jButtonDeleteAccount.setEnabled(true);
                 JOptionPane.showMessageDialog(this, "Authorization performed successfully!", "Sucessful", JOptionPane.INFORMATION_MESSAGE);
                 getKey();

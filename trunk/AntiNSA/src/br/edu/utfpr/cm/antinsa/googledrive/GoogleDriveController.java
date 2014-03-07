@@ -69,17 +69,13 @@ public class GoogleDriveController extends Thread {
                 }
 
                 if (Config.STORE_CONFIG.exists() && Util.verifyServiceConnection(GDUtils.URL_SERVICE) && GDUtils.SECRET_KEY.exists()) {
-                    try {
                         Config.STORE_DEFAULT.mkdirs();
                         GDUtils.CACHE_DIR.mkdirs();
                         //Sincroniza os arquivos locais com a nuvem
                         cloudSync();
                         //Atualiza base de dados com arquivos locais
                         localSync();
-                        Thread.sleep(500);
-                    } catch (InterruptedException ex) {
-                        ex.printStackTrace();
-                    }
+                   
                 } else {
                     //A aplicacao nao esta devidamente configurada, e necessario reinicializar o aplicativo ou não há conexão com o serviço
                     interrupt();
