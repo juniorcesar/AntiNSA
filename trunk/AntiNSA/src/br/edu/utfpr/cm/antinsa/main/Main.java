@@ -34,6 +34,7 @@ public class Main {
             main.setVisible(false);
             if (Boolean.valueOf(Config.readXMLConfig("enable-google-drive").getValue()) && GoogleDriveOAuth.isValidCredential() && GDUtils.SECRET_KEY.exists()) {
                 GoogleDriveController driveController = new GoogleDriveController();
+                main.setDriveController(driveController);
                 driveController.initServiceGoogleDrive();
 
             }

@@ -32,7 +32,7 @@ public class JFramePreferences extends javax.swing.JFrame {
      * Creates new form JFramePreferences
      */
     private TaskBar task;
-    private GoogleDriveController driveController;
+    private static GoogleDriveController driveController;
     private Thread thread;
 
     public JFramePreferences() {
@@ -127,7 +127,7 @@ public class JFramePreferences extends javax.swing.JFrame {
 
         jLabel2.setText("E-mail:");
 
-        jButtonAuth.setText("Authenticate");
+        jButtonAuth.setText("Authorization");
         jButtonAuth.setMaximumSize(new java.awt.Dimension(97, 34));
         jButtonAuth.setMinimumSize(new java.awt.Dimension(97, 34));
         jButtonAuth.setPreferredSize(new java.awt.Dimension(97, 33));
@@ -336,9 +336,9 @@ public class JFramePreferences extends javax.swing.JFrame {
                 }
                 int value1 = JOptionPane.showConfirmDialog(this, "Would you like to remove directory AntiNSA?", "Information", JOptionPane.YES_NO_OPTION);
                 if (value == JOptionPane.YES_OPTION) {
-                    if (Config.STORE_DEFAULT != null) {
+//                    if (Config.STORE_DEFAULT != null) {
                         Config.STORE_DEFAULT.delete();
-                    }
+//                    }
                 }
                 JOptionPane.showMessageDialog(null, "Your Google Drive account was deleted this computer with success!", "Sucessful", JOptionPane.INFORMATION_MESSAGE);
             }
@@ -533,4 +533,14 @@ public class JFramePreferences extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Unable to get key!\n Your account has not been configured!", "Warning", JOptionPane.WARNING_MESSAGE);
         }
     }
+
+    public GoogleDriveController getDriveController() {
+        return driveController;
+    }
+
+    public void setDriveController(GoogleDriveController driveController) {
+        this.driveController = driveController;
+    }
+    
+    
 }
