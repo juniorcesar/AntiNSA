@@ -9,16 +9,12 @@ import br.edu.utfpr.cm.antinsa.googledrive.GoogleDriveOAuth;
 import br.edu.utfpr.cm.antinsa.configuration.Config;
 import br.edu.utfpr.cm.antinsa.googledrive.GoogleDriveController;
 import br.edu.utfpr.cm.antinsa.security.KeyManager;
-import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
-import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.crypto.NoSuchPaddingException;
 import javax.swing.JOptionPane;
 
@@ -332,7 +328,8 @@ public class JFramePreferences extends javax.swing.JFrame {
             if (value == JOptionPane.YES_OPTION) {
                 deleteGoogleAccount();
                 if (driveController != null) {
-                    driveController.interrupt();
+                    driveController.close();
+                    driveController = null;
                 }
 //                int value1 = JOptionPane.showConfirmDialog(this, "Would you like to remove directory AntiNSA?", "Information", JOptionPane.YES_NO_OPTION);
 //                if (value == JOptionPane.YES_OPTION) {
@@ -356,12 +353,12 @@ public class JFramePreferences extends javax.swing.JFrame {
                 jButtonDeleteAccount.setEnabled(true);
                 JOptionPane.showMessageDialog(this, "Authorization performed successfully!", "Sucessful", JOptionPane.INFORMATION_MESSAGE);
                 getKey();
+                setAccountInfo();
                 if (Boolean.valueOf(Config.readXMLConfig("enable-google-drive").getText()) == true) {
-                    if (driveController == null) {
-                        driveController = new GoogleDriveController();
-                    }
-                    driveController.initServiceGoogleDrive();
-                    setAccountInfo();
+
+                    driveController = new GoogleDriveController();
+
+                    driveController.start();
                 }
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(this, ex.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
@@ -379,6 +376,16 @@ public class JFramePreferences extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonAuthActionPerformed
 
     private void jCheckBoxEnableGoogleItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCheckBoxEnableGoogleItemStateChanged
+//        if (!jCheckBoxEnableGoogle.isEnabled()) {
+//            if (driveController != null) {
+//                driveController.close();
+//                driveController = null;
+//            }
+//        } else if (GoogleDriveOAuth.isValidCredential()) {
+//            driveController = null;
+//            driveController = new GoogleDriveController();
+//            driveController.start();
+//        }
         setConfigGoogleDriveAccount();
         getConfigGoogleDriveAccount();
     }//GEN-LAST:event_jCheckBoxEnableGoogleItemStateChanged
@@ -541,6 +548,4 @@ public class JFramePreferences extends javax.swing.JFrame {
     public void setDriveController(GoogleDriveController driveController) {
         this.driveController = driveController;
     }
-    
-    
 }

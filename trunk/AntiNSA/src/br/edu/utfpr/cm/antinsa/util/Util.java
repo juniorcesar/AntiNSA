@@ -64,13 +64,10 @@ public class Util {
                 return true;
             }
         } catch (UnknownHostException ex) {
-            ex.printStackTrace();
             return false;
         } catch (MalformedURLException ex) {
-            ex.printStackTrace();
             return false;
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        } catch (IOException ex) { 
             return false;
         }
         return false;

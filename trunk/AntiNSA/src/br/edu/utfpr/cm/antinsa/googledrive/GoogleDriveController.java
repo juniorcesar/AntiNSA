@@ -38,6 +38,7 @@ public class GoogleDriveController extends Thread {
     private java.io.File encryptedFile;
     private java.io.File decryptedFile;
     private SecretKeyAESCrypto cipher;
+    private boolean isClosed = true;
 
     public GoogleDriveController() {
         try {
@@ -61,7 +62,7 @@ public class GoogleDriveController extends Thread {
     @Override
     public void run() {
         try {
-            while (!isInterrupted()) {
+            while (!isClosed) {
                 if (cipher == null) {
                     if (GDUtils.SECRET_KEY.exists()) {
                         cipher = new SecretKeyAESCrypto();
@@ -69,16 +70,13 @@ public class GoogleDriveController extends Thread {
                 }
 
                 if (Config.STORE_CONFIG.exists() && Util.verifyServiceConnection(GDUtils.URL_SERVICE) && GDUtils.SECRET_KEY.exists()) {
-                        Config.STORE_DEFAULT.mkdirs();
-                        GDUtils.CACHE_DIR.mkdirs();
-                        //Sincroniza os arquivos locais com a nuvem
-                        cloudSync();
-                        //Atualiza base de dados com arquivos locais
-                        localSync();
-                   
-                } else {
-                    //A aplicacao nao esta devidamente configurada, e necessario reinicializar o aplicativo ou não há conexão com o serviço
-                    interrupt();
+                    Config.STORE_DEFAULT.mkdirs();
+                    GDUtils.CACHE_DIR.mkdirs();
+                    //Sincroniza os arquivos locais com a nuvem
+                    cloudSync();
+                    //Atualiza base de dados com arquivos locais
+                    localSync();
+
                 }
             }
         } catch (Exception ex) {
@@ -264,5 +262,15 @@ public class GoogleDriveController extends Thread {
         } catch (IOException ex) {
             return false;
         }
+    }
+
+    @Override
+    public void start() {
+        isClosed = false;
+        super.start();
+    }
+
+    public void close() {
+        isClosed = true;
     }
 }

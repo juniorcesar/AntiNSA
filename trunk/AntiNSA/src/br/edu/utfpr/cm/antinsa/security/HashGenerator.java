@@ -46,7 +46,6 @@ public class HashGenerator {
             md5.update(fileContent.getBytes());
             return new BigInteger(1, md5.digest()).toString(16);
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
             return null;
         }
     }
