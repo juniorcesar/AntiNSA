@@ -1,0 +1,9 @@
+-AntiNSA
+* Implementar sincronização de diretórios, pois a ferramenta foi implementada para sincronizar somente arquivos;
+* Compartilhamento de diretórios e arquivos com outros usuários do serviço de armazenamento em nuvem, fazendo o uso de algoritmos de chave assimétrica;
+* Implementar melhorias no módulo de segurança inserindo outros algoritmos de criptografia, além do AES;
+* Implementar criptografia para armazenar a chave criptográfica no aplicativo KeyManager; 
+* Implementar outras nuvens de armazenamento como Dropbox e SkyDrive para aumentar a disponibilidade das informações do usuário do serviço, pois a arquitetura implementada foi idealizada para utilizar somente uma nuvem de armazenamento;
+* Adaptar a ferramenta para que a mesma possa ser utilizada em outros sistemas operacionais, como Microsoft Windows1 e OSx2, pois a ferramenta AntiNSA utiliza a estrutura de diretórios do sistema operacional Linux3 para armazenar suas configurações. 
+
+-KeyManager
